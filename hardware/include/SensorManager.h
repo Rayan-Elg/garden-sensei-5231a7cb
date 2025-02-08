@@ -1,14 +1,19 @@
 #ifndef SENSOR_MANAGER_H
 #define SENSOR_MANAGER_H
 
+#include <Arduino.h>
+
 class SensorManager {
 public:
-    SensorManager(); // Constructeur
-    void begin(); // Initialise les capteurs
-    float readTemperature(); // Retourne la température
-    float readHumidity(); // Retourne l'humidité
-    int readSoilMoisture(); // Retourne l'humidité du sol
-    int readLightLevel(); // Retourne le niveau de lumière
+    SensorManager(int soilPin, int lightPin, int tempPin);
+    void begin();
+    float readTemperature();
+    int readSoilMoisture();
+    int readLightLevel();
+
+private:
+    int soilMoisturePin;
+    int lightSensorPin;
 };
 
 #endif

@@ -7,9 +7,7 @@ class SerialManager {
 public:
     SerialManager();
     void begin(unsigned long baudRate = 115200);
-    void sendData(const String& sensorName, float value);
-    void sendData(const String& sensorName, int value);
-    void sendRaw(const String& message);
+    void sendData(float temperature, float humidity, int soilMoisture, int lightLevel);
     
 private:
     unsigned long baudRate;

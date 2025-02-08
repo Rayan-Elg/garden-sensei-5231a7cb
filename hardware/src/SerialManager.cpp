@@ -1,6 +1,5 @@
 #include "SerialManager.h"
 
-
 SerialManager::SerialManager() : baudRate(115200) {}
 
 void SerialManager::begin(unsigned long baudRate) {
@@ -8,18 +7,11 @@ void SerialManager::begin(unsigned long baudRate) {
     Serial.begin(baudRate);
 }
 
-void SerialManager::sendData(const String& sensorName, float value) {
-    Serial.print(sensorName);
-    Serial.print(": ");
-    Serial.println(value);
-}
-
-void SerialManager::sendData(const String& sensorName, int value) {
-    Serial.print(sensorName);
-    Serial.print(": ");
-    Serial.println(value);
-}
-
-void SerialManager::sendRaw(const String& message) {
-    Serial.println(message);
+void SerialManager::sendData(float temperature, float humidity, int soilMoisture, int lightLevel) {
+    Serial.print("{");
+    Serial.print("\"temperature\": "); Serial.print(temperature);
+    Serial.print(", \"humidity\": "); Serial.print(humidity);
+    Serial.print(", \"soilMoisture\": "); Serial.print(soilMoisture);
+    Serial.print(", \"lightLevel\": "); Serial.print(lightLevel);
+    Serial.println("}");
 }
