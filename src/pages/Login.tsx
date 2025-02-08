@@ -28,7 +28,7 @@ const Login = () => {
             supabaseClient={supabase}
             appearance={{ theme: ThemeSupa }}
             providers={['google', 'github']}
-            redirectTo={window.location.origin}
+            redirectTo={`${window.location.protocol}//${window.location.hostname}:${window.location.port}`}
           />
         )}
       </Card>
