@@ -7,6 +7,15 @@ export interface PlantIdentification {
   name: string;
   species: string;
   description: string;
+  careGuide: {
+    water: string;
+    humidity: string;
+    light: string;
+    soil: string;
+    temperature: string;
+    fertilizer: string;
+    warnings: string;
+  };
   confidence: number;
   rawResponse?: string;
 }
@@ -128,15 +137,32 @@ export const identifyPlant = async (imageFile: File): Promise<PlantIdentificatio
 
     1. The common name (or most likely plant type if unsure)
     2. The scientific name (genus and species, just genus if species is uncertain)
-    3. A brief description including:
+    3. A description including:
        - Plant family
        - Key identifying features
-       - Basic care requirements
+       - Growth characteristics
+       - Any other relevant details
+    4. Care Guide:
+       - Watering frequency (e.g., times per week)
+       - Humidity requirements (optimal percentage range)
+       - Light requirements (in lux/lumens and simple terms)
+       - Soil type and drainage needs
+       - Temperature range (in Celsius)
+       - Fertilization schedule
+       - Common issues and prevention
 
     Format your response EXACTLY like this:
     Name: [common name]
     Scientific Name: [genus species]
-    Description: [your description]
+    Description: [plant family, identifying features, and growth characteristics]
+    Care Guide:
+      Water: [frequency and amount]
+      Humidity: [optimal range]
+      Light: [requirements in lux/lumens and description]
+      Soil: [type and drainage]
+      Temperature: [range in Celsius]
+      Fertilizer: [type and schedule]
+      Watch out for: [common issues]
     Confidence: [high/medium/low]
 
     If you can't identify the plant with reasonable confidence, say so and explain what would help make a better identification.`;
@@ -210,13 +236,23 @@ export const identifyPlant = async (imageFile: File): Promise<PlantIdentificatio
     // Parse the response with better error handling
     const nameMatch = text.match(/Name:\s*(.+?)(?:\n|$)/);
     const scientificMatch = text.match(/Scientific Name:\s*(.+?)(?:\n|$)/);
-    const descriptionMatch = text.match(/Description:\s*(.+?)(?=\nConfidence:|$)/s);
+    const descriptionMatch = text.match(/Description:\s*(.+?)(?=\nCare Guide:|$)/s);
+    const careGuideMatch = text.match(/Care Guide:\n((?:.*\n)*?)(?=Confidence:|$)/);
     const confidenceMatch = text.match(/Confidence:\s*(high|medium|low)/i);
 
-    if (!nameMatch || !scientificMatch || !descriptionMatch) {
+    if (!nameMatch || !scientificMatch || !descriptionMatch || !careGuideMatch) {
       console.error('Could not parse Gemini response:', text);
       return null;
     }
+
+    const careGuide = careGuideMatch[1].trim();
+    const waterMatch = careGuide.match(/Water:\s*(.+?)(?:\n|$)/);
+    const humidityMatch = careGuide.match(/Humidity:\s*(.+?)(?:\n|$)/);
+    const lightMatch = careGuide.match(/Light:\s*(.+?)(?:\n|$)/);
+    const soilMatch = careGuide.match(/Soil:\s*(.+?)(?:\n|$)/);
+    const temperatureMatch = careGuide.match(/Temperature:\s*(.+?)(?:\n|$)/);
+    const fertilizerMatch = careGuide.match(/Fertilizer:\s*(.+?)(?:\n|$)/);
+    const watchOutMatch = careGuide.match(/Watch out for:\s*(.+?)(?:\n|$)/);
 
     const confidenceLevel = confidenceMatch?.[1]?.toLowerCase() || 'medium';
     const confidenceScore = {
@@ -229,6 +265,15 @@ export const identifyPlant = async (imageFile: File): Promise<PlantIdentificatio
       name: nameMatch[1].trim(),
       species: scientificMatch[1].trim(),
       description: descriptionMatch[1].trim(),
+      careGuide: {
+        water: waterMatch?.[1].trim() || 'Not specified',
+        humidity: humidityMatch?.[1].trim() || 'Not specified',
+        light: lightMatch?.[1].trim() || 'Not specified',
+        soil: soilMatch?.[1].trim() || 'Not specified',
+        temperature: temperatureMatch?.[1].trim() || 'Not specified',
+        fertilizer: fertilizerMatch?.[1].trim() || 'Not specified',
+        warnings: watchOutMatch?.[1].trim() || 'Not specified'
+      },
       confidence: confidenceScore,
       rawResponse: text
     };
