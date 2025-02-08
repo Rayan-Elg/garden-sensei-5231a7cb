@@ -1,57 +1,14 @@
 
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
 import PlantCard from "@/components/PlantCard";
 import SensorCard from "@/components/SensorCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-
-const mockPlants = [
-  {
-    name: "Basilic",
-    species: "Ocimum basilicum",
-    moisture: 65,
-    light: 80,
-    lastWatered: "2024-03-10",
-    image: "/lovable-uploads/4b767a9d-283b-4b0f-91d9-0d13bef5af71.png"
-  },
-  {
-    name: "Tomate",
-    species: "Solanum lycopersicum",
-    moisture: 45,
-    light: 90,
-    lastWatered: "2024-03-11",
-    image: "/lovable-uploads/89967f8c-bf6e-448b-a8da-753d8d25cb15.png"
-  }
-];
-
-const mockSensors = [
-  {
-    name: "Garden Sensor 1",
-    type: "Moisture & Light",
-    battery: 85,
-    signal: 92,
-    lastUpdate: "2024-03-12 14:30",
-    isOnline: true
-  },
-  {
-    name: "Greenhouse Sensor",
-    type: "Temperature & Humidity",
-    battery: 65,
-    signal: 78,
-    lastUpdate: "2024-03-12 14:25",
-    isOnline: true
-  },
-  {
-    name: "Garden Sensor 2",
-    type: "Soil pH & Moisture",
-    battery: 12,
-    signal: 45,
-    lastUpdate: "2024-03-12 10:15",
-    isOnline: false
-  }
-];
+import { getPlants } from "@/lib/api/plants";
+import { getSensors } from "@/lib/api/sensors";
 
 const gardeningTips = [
   "Water your plants early in the morning to reduce evaporation 🌅",
@@ -64,6 +21,16 @@ const gardeningTips = [
 const Index = () => {
   const navigate = useNavigate();
   const randomTip = gardeningTips[Math.floor(Math.random() * gardeningTips.length)];
+  
+  const { data: plants = [], isLoading: plantsLoading } = useQuery({
+    queryKey: ['plants'],
+    queryFn: getPlants,
+  });
+
+  const { data: sensors = [], isLoading: sensorsLoading } = useQuery({
+    queryKey: ['sensors'],
+    queryFn: getSensors,
+  });
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -90,7 +57,11 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockPlants.length === 0 ? (
+            {plantsLoading ? (
+              <Card className="col-span-full p-8 text-center">
+                Loading plants...
+              </Card>
+            ) : plants.length === 0 ? (
               <Card className="col-span-full p-8 text-center bg-white/80 backdrop-blur-sm animate-fade-in">
                 <div className="flex flex-col items-center gap-4">
                   <span className="text-4xl">🌱</span>
@@ -108,8 +79,8 @@ const Index = () => {
                 </div>
               </Card>
             ) : (
-              mockPlants.map((plant) => (
-                <PlantCard key={plant.name} {...plant} />
+              plants.map((plant) => (
+                <PlantCard key={plant.id} {...plant} />
               ))
             )}
           </div>
@@ -125,7 +96,11 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockSensors.length === 0 ? (
+            {sensorsLoading ? (
+              <Card className="col-span-full p-8 text-center">
+                Loading sensors...
+              </Card>
+            ) : sensors.length === 0 ? (
               <Card className="col-span-full p-8 text-center bg-white/80 backdrop-blur-sm animate-fade-in">
                 <div className="flex flex-col items-center gap-4">
                   <span className="text-4xl">📡</span>
@@ -139,8 +114,8 @@ const Index = () => {
                 </div>
               </Card>
             ) : (
-              mockSensors.map((sensor) => (
-                <SensorCard key={sensor.name} {...sensor} />
+              sensors.map((sensor) => (
+                <SensorCard key={sensor.id} {...sensor} />
               ))
             )}
           </div>
