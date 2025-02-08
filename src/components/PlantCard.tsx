@@ -3,6 +3,7 @@ import { Sprout, Droplet, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { formatDistanceToNow } from "date-fns";
 
 interface PlantCardProps {
   name: string;
@@ -25,14 +26,14 @@ const PlantCard = ({
   
   return (
     <Card 
-      className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer animate-fade-in bg-white/80 backdrop-blur-sm"
+      className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer animate-fade-in bg-white/80 backdrop-blur-sm group"
       onClick={() => navigate(`/plants/${name.toLowerCase()}`)}
     >
       <div className="aspect-video relative mb-4 overflow-hidden rounded-lg">
         <img 
           src={image} 
           alt={name}
-          className="object-cover w-full h-full transform hover:scale-105 transition-transform duration-300"
+          className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-105"
         />
       </div>
       
@@ -46,9 +47,9 @@ const PlantCard = ({
               <Droplet className="w-4 h-4 text-blue-500" />
               <span>Moisture</span>
             </div>
-            <span>{moisture}%</span>
+            <span className="transition-all duration-500">{moisture}%</span>
           </div>
-          <Progress value={moisture} className="h-2" />
+          <Progress value={moisture} className="h-2 transition-all duration-500" />
         </div>
         
         <div className="space-y-2">
@@ -57,16 +58,24 @@ const PlantCard = ({
               <Sun className="w-4 h-4 text-yellow-500" />
               <span>Light</span>
             </div>
-            <span>{light}%</span>
+            <span className="transition-all duration-500">{light}%</span>
           </div>
-          <Progress value={light} className="h-2" />
+          <Progress value={light} className="h-2 transition-all duration-500" />
         </div>
       </div>
       
       <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
         <Sprout className="w-4 h-4" />
-        <span>Last watered: {lastWatered}</span>
+        <span>Last watered: {formatDistanceToNow(new Date(lastWatered), { addSuffix: true })}</span>
       </div>
+
+      {moisture < 30 && (
+        <div className="absolute -top-1 -right-1 animate-bounce">
+          <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+            Needs water! 💧
+          </span>
+        </div>
+      )}
     </Card>
   );
 };
