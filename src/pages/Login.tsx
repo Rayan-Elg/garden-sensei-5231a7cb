@@ -6,12 +6,23 @@ import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const Login = () => {
-  const { data: session, isLoading } = useQuery({
+  const { toast } = useToast();
+  const { data: session, isLoading, error } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
-      const { data } = await supabase.auth.getSession();
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Auth error:', error);
+        toast({
+          title: "Authentication Error",
+          description: "There was a problem connecting to the authentication service. Please try again.",
+          variant: "destructive"
+        });
+        return null;
+      }
       return data.session;
     },
   });
@@ -52,6 +63,14 @@ const Login = () => {
             providers={['google', 'github']}
             redirectTo={redirectTo}
             showLinks={false}
+            onError={(error) => {
+              console.error('Auth UI error:', error);
+              toast({
+                title: "Authentication Error",
+                description: error.message,
+                variant: "destructive"
+              });
+            }}
           />
         )}
       </Card>
