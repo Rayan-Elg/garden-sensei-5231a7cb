@@ -1,5 +1,6 @@
 
 import { Sprout, Droplet, Sun } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
@@ -10,7 +11,6 @@ interface PlantCardProps {
   light: number;
   lastWatered: string;
   image: string;
-  onClick?: () => void;
 }
 
 const PlantCard = ({
@@ -20,12 +20,13 @@ const PlantCard = ({
   light,
   lastWatered,
   image,
-  onClick,
 }: PlantCardProps) => {
+  const navigate = useNavigate();
+  
   return (
     <Card 
       className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer animate-fade-in bg-white/80 backdrop-blur-sm"
-      onClick={onClick}
+      onClick={() => navigate(`/plants/${name.toLowerCase()}`)}
     >
       <div className="aspect-video relative mb-4 overflow-hidden rounded-lg">
         <img 

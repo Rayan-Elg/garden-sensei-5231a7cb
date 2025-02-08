@@ -1,5 +1,6 @@
 
 import { Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import PlantCard from "@/components/PlantCard";
 import SensorCard from "@/components/SensorCard";
@@ -52,6 +53,8 @@ const mockSensors = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <Navigation />
@@ -60,7 +63,10 @@ const Index = () => {
         <div className="mb-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold">Plants</h2>
-            <Button className="gap-2">
+            <Button 
+              className="gap-2"
+              onClick={() => navigate("/plants/add")}
+            >
               <Plus className="w-4 h-4" />
               Add Plant
             </Button>
