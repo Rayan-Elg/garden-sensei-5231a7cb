@@ -30,9 +30,9 @@ const Login = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
-        <div className="flex items-center gap-2 text-gray-500">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading...</span>
+        <div className="flex flex-col items-center gap-3 text-gray-500">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="text-sm">Checking authentication status...</span>
         </div>
       </div>
     );
@@ -47,21 +47,49 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-6 bg-white/80 backdrop-blur-sm">
-        <h1 className="text-2xl font-semibold text-center mb-6">Welcome to SmartGarden Manager</h1>
+        <h1 className="text-2xl font-semibold text-center mb-2">Welcome Back</h1>
+        <p className="text-center text-gray-500 mb-6">Sign in to your account to continue</p>
         {supabase && (
           <Auth
             supabaseClient={supabase}
             appearance={{ 
               theme: ThemeSupa,
               style: {
-                button: { width: '100%' },
+                button: { 
+                  width: '100%',
+                  padding: '8px 16px',
+                  marginBottom: '8px'
+                },
                 container: { width: '100%' },
                 message: { color: 'rgb(59 130 246)' },
+                loader: { color: 'rgb(59 130 246)' },
+                divider: { margin: '20px 0' },
+                input: {
+                  padding: '8px 12px',
+                  marginBottom: '12px'
+                },
+                label: {
+                  marginBottom: '4px',
+                  color: 'rgb(75 85 99)'
+                }
               }
             }}
             providers={['google', 'github']}
             redirectTo={redirectTo}
-            view="magic_link"
+            magicLink={true}
+            showLinks={true}
+            localization={{
+              variables: {
+                sign_in: {
+                  email_label: 'Email address',
+                  password_label: 'Password',
+                  button_label: 'Sign in',
+                  loading_button_label: 'Signing in...',
+                  social_provider_text: 'Continue with {{provider}}',
+                  link_text: "Don't have an account? Sign up"
+                }
+              }
+            }}
           />
         )}
       </Card>
