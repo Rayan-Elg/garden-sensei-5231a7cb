@@ -1,5 +1,5 @@
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../supabase';
 
 export interface Plant {
   id: string;
