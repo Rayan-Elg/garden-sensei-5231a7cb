@@ -1,13 +1,18 @@
 
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Droplet, Sun, Sprout } from "lucide-react";
+import { ArrowLeft, Droplet, Sun, Sprout, PencilIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/components/ui/use-toast";
 import Navigation from "@/components/Navigation";
+import { useState, useRef } from "react";
 
 const PlantDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imageUrl, setImageUrl] = useState("/lovable-uploads/4b767a9d-283b-4b0f-91d9-0d13bef5af71.png");
   
   // Mock data - in a real app, fetch this from your backend
   const plant = {
@@ -16,8 +21,27 @@ const PlantDetail = () => {
     moisture: 65,
     light: 80,
     lastWatered: "2024-03-10",
-    image: "/lovable-uploads/4b767a9d-283b-4b0f-91d9-0d13bef5af71.png",
+    image: imageUrl,
     description: "Le basilic est une herbe aromatique populaire qui nécessite un sol humide et beaucoup de soleil. Idéal pour la cuisine, il peut être cultivé à l'intérieur ou à l'extérieur."
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result as string);
+        toast({
+          title: "Image updated",
+          description: "Your plant photo has been successfully updated.",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -35,11 +59,26 @@ const PlantDetail = () => {
         </Button>
         
         <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden">
-          <div className="aspect-[16/9] relative">
+          <div className="aspect-[16/9] relative group">
             <img 
               src={plant.image} 
               alt={plant.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-opacity group-hover:opacity-90"
+            />
+            <Button
+              variant="secondary"
+              size="icon"
+              className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={handleImageClick}
+            >
+              <PencilIcon className="h-4 w-4" />
+            </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleImageChange}
             />
           </div>
           
