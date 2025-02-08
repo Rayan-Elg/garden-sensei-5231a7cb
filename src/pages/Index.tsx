@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getPlants } from "@/lib/api/plants";
 import { getSensors } from "@/lib/api/sensors";
-import { useToast } from "@/components/ui/use-toast";
 
 const gardeningTips = [
   "Water your plants early in the morning to reduce evaporation 🌅",
@@ -21,27 +20,17 @@ const gardeningTips = [
 
 const Index = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const randomTip = gardeningTips[Math.floor(Math.random() * gardeningTips.length)];
   
-  const { data: plants = [], isLoading: plantsLoading, error: plantsError } = useQuery({
+  const { data: plants = [], isLoading: plantsLoading } = useQuery({
     queryKey: ['plants'],
     queryFn: getPlants,
-    onError: () => {
-      toast({
-        title: "Connection Error",
-        description: "Unable to connect to Supabase. Please check your configuration.",
-        variant: "destructive"
-      });
-    }
   });
 
   const { data: sensors = [], isLoading: sensorsLoading } = useQuery({
     queryKey: ['sensors'],
-    queryFn: getSensors
+    queryFn: getSensors,
   });
-
-  const showConnectionError = plantsError || (!plantsLoading && plants.length === 0);
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -71,21 +60,6 @@ const Index = () => {
             {plantsLoading ? (
               <Card className="col-span-full p-8 text-center">
                 Loading plants...
-              </Card>
-            ) : showConnectionError ? (
-              <Card className="col-span-full p-8 text-center bg-white/80 backdrop-blur-sm animate-fade-in">
-                <div className="flex flex-col items-center gap-4">
-                  <span className="text-4xl">⚠️</span>
-                  <h3 className="text-xl font-semibold">Connection Error</h3>
-                  <p className="text-gray-600 max-w-md">
-                    Unable to connect to Supabase. Please make sure you have:
-                    <ol className="list-decimal list-inside mt-2 text-left">
-                      <li>Connected your Supabase project in the settings</li>
-                      <li>Properly configured your environment variables</li>
-                      <li>Created the necessary database tables</li>
-                    </ol>
-                  </p>
-                </div>
               </Card>
             ) : plants.length === 0 ? (
               <Card className="col-span-full p-8 text-center bg-white/80 backdrop-blur-sm animate-fade-in">
