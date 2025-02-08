@@ -1,3 +1,4 @@
+
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/lib/supabase';
@@ -16,6 +17,10 @@ const Login = () => {
     queryKey: ['session'],
     queryFn: async () => {
       try {
+        // First, try to clear any existing invalid session
+        await supabase.auth.signOut({ scope: 'local' });
+        
+        // Then get fresh session
         const { data, error } = await supabase.auth.getSession();
         if (error) {
           console.error('Auth error:', error);
@@ -32,9 +37,8 @@ const Login = () => {
         return null;
       }
     },
-    refetchInterval: 5000, // Check session every 5 seconds instead of every second
-    retry: 1, // Only retry once on error
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    refetchInterval: 1000, // Check session status every second
+    retry: false, // Don't retry on error
   });
 
   const handleAuthEvent = (event: 'SIGNED_IN' | 'SIGNED_OUT' | 'USER_UPDATED' | 'PASSWORD_RECOVERY' | any) => {
@@ -50,7 +54,7 @@ const Login = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-gray-500">
+        <div className="flex flex-col items-center gap-3 text-gray-500 animate-fade-in">
           <Loader2 className="h-8 w-8 animate-spin" />
           <span className="text-sm">Checking authentication status...</span>
         </div>
@@ -66,13 +70,13 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-6 bg-white/80 backdrop-blur-sm relative">
+      <Card className="w-full max-w-md p-6 bg-white/80 backdrop-blur-sm relative animate-fade-in-up">
         {/* Show loading overlay when logging in */}
         {isLoggingIn && (
-          <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-              <span className="text-sm font-medium text-gray-700">Setting up your session...</span>
+              <span className="text-sm font-medium text-gray-700 animate-pulse">Setting up your session...</span>
               <span className="text-xs text-gray-500">This might take a moment</span>
             </div>
           </div>
@@ -104,7 +108,6 @@ const Login = () => {
                   color: 'rgb(75 85 99)'
                 }
               },
-              // Add loading state styles
               variables: {
                 default: {
                   colors: {
@@ -133,7 +136,6 @@ const Login = () => {
                 }
               }
             }}
-            // Add event handlers to show loading state
             onSubmit={() => {
               setIsLoggingIn(true);
               toast({
