@@ -4,19 +4,61 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 const Navigation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Get current session
+  const { data: session, refetch } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getSession();
+      return data.session;
+    },
+  });
+
   const handleLogout = async () => {
-    if (supabase) {
-      await supabase.auth.signOut();
+    try {
+      if (!session) {
+        toast({
+          title: "No active session",
+          description: "You are already logged out.",
+          variant: "destructive",
+        });
+        navigate('/login');
+        return;
+      }
+
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Logout error:', error);
+        toast({
+          title: "Logout Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Force session refetch
+      await refetch();
+      
       toast({
         title: "Logged out successfully",
         description: "You have been logged out of your account.",
       });
+      
       navigate('/login');
+    } catch (err) {
+      console.error('Unexpected error during logout:', err);
+      toast({
+        title: "Unexpected Error",
+        description: "An unexpected error occurred during logout.",
+        variant: "destructive",
+      });
     }
   };
 
