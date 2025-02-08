@@ -25,6 +25,7 @@ const Login = () => {
       }
       return data.session;
     },
+    refetchInterval: 1000, // Check session status every second
   });
 
   if (isLoading) {
@@ -78,6 +79,7 @@ const Login = () => {
             redirectTo={redirectTo}
             magicLink={true}
             showLinks={true}
+            onlyThirdPartyProviders={false}
             localization={{
               variables: {
                 sign_in: {
@@ -86,7 +88,9 @@ const Login = () => {
                   button_label: 'Sign in',
                   loading_button_label: 'Signing in...',
                   social_provider_text: 'Continue with {{provider}}',
-                  link_text: "Don't have an account? Sign up"
+                  link_text: "Don't have an account? Sign up",
+                  email_input_placeholder: 'Enter your email',
+                  password_input_placeholder: 'Enter your password'
                 }
               }
             }}
