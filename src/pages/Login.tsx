@@ -61,7 +61,6 @@ const Login = () => {
             }}
             providers={['google', 'github']}
             redirectTo={redirectTo}
-            onlyThirdPartyProviders
           />
         )}
       </Card>
