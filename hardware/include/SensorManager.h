@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef SENSOR_MANAGER_H
 #define SENSOR_MANAGER_H
 
@@ -5,15 +7,12 @@
 
 class SensorManager {
 public:
-    SensorManager(int soilPin, int lightPin, int tempPin);
+    SensorManager(int soilPin, int lightPin, int tempSensorPin);
     void begin();
     float readTemperature();
-    int readSoilMoisture();
-    int readLightLevel();
-
-private:
-    int soilMoisturePin;
-    int lightSensorPin;
+    float readSoilMoisture();
+    float readLightLevel();
+    int soilMoisturePin, lightSensorPin, tempSensorPin;
 };
 
 #endif

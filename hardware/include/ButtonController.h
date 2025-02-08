@@ -1,11 +1,17 @@
+#pragma once
+
 #ifndef BUTTON_CONTROLLER_H
 #define BUTTON_CONTROLLER_H
+
+#include <Arduino.h>
 
 class ButtonController {
 public:
     ButtonController(int pin);
     void begin();
-    bool isPressed(); // Vérifie si le bouton est pressé
+    bool isPressed();
+    int getPin();
+
 private:
     int buttonPin;
 };
