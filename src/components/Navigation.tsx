@@ -10,34 +10,47 @@ const Navigation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Get current session
+  // Get current session with more frequent refetching
   const { data: session, refetch } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
-      const { data } = await supabase.auth.getSession();
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Session fetch error:', error);
+        return null;
+      }
       return data.session;
     },
+    refetchInterval: 5000, // Refetch every 5 seconds to keep session fresh
   });
 
   const handleLogout = async () => {
     try {
-      if (!session) {
+      // First try to refresh the session
+      const { data: refreshResult, error: refreshError } = await supabase.auth.refreshSession();
+      
+      if (refreshError) {
+        console.error('Session refresh error:', refreshError);
+        // If we can't refresh, the user is probably already logged out
         toast({
-          title: "No active session",
-          description: "You are already logged out.",
+          title: "Already logged out",
+          description: "Your session has expired. Please log in again.",
           variant: "destructive",
         });
         navigate('/login');
         return;
       }
 
-      const { error } = await supabase.auth.signOut();
+      // Now try to sign out
+      const { error: signOutError } = await supabase.auth.signOut({
+        scope: 'local' // Only clear local session, don't try to invalidate on server
+      });
       
-      if (error) {
-        console.error('Logout error:', error);
+      if (signOutError) {
+        console.error('Logout error:', signOutError);
         toast({
           title: "Logout Error",
-          description: error.message,
+          description: signOutError.message,
           variant: "destructive",
         });
         return;
