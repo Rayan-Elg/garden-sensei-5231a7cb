@@ -10,10 +10,11 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     strictPort: true,
     proxy: {
-      '/auth': {
+      '/auth/v1': {
         target: 'https://rvrhlbsqhgbtecjjdtik.supabase.co',
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path.replace(/^\/auth/, '/auth/v1')
       }
     }
   },

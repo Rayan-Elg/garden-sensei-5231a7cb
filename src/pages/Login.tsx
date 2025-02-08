@@ -42,7 +42,6 @@ const Login = () => {
     return <Navigate to="/" replace />;
   }
 
-  // Ensure we're using the correct port for local development
   const redirectTo = `${window.location.origin}/auth/callback`;
 
   return (
