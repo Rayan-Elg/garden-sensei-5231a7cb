@@ -61,6 +61,7 @@ const Login = () => {
             }}
             providers={['google', 'github']}
             redirectTo={redirectTo}
+            view="magic_link"
           />
         )}
       </Card>

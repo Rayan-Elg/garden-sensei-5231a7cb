@@ -1,40 +1,34 @@
+
 import { createClient } from '@supabase/supabase-js';
 
-// These environment variables should be set in your Supabase project settings
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-// Add debug logging for environment variables
-console.log('Supabase URL:', supabaseUrl);
-console.log('Supabase Key exists:', !!supabaseKey);
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Create Supabase client only if credentials are provided
 export const supabase = supabaseUrl && supabaseKey ? 
-  createClient(supabaseUrl, supabaseKey) : 
+  createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
+    }
+  }) : 
   null;
 
 // Add a helper function to check connection
 export const checkSupabaseConnection = async () => {
   if (!supabase) {
-    console.error('Supabase client not initialized - missing credentials', {
-      hasUrl: !!supabaseUrl,
-      hasKey: !!supabaseKey
-    });
+    console.error('Supabase client not initialized - missing credentials');
     return false;
   }
 
   try {
     const { data, error } = await supabase.from('plants').select('id').limit(1);
     if (error) {
-      console.error('Supabase connection error:', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint
-      });
+      console.error('Supabase connection error:', error);
       return false;
     }
-    console.log('Supabase connection successful, found', data?.length || 0, 'plants');
+    console.log('Supabase connection successful');
     return true;
   } catch (err) {
     console.error('Failed to connect to Supabase:', err);
