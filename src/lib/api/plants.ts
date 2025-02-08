@@ -1,5 +1,5 @@
 
-import { supabase } from '../supabase';
+import { supabase, checkSupabaseConnection } from '../supabase';
 
 export interface Plant {
   id: string;
@@ -13,15 +13,25 @@ export interface Plant {
 }
 
 export const getPlants = async (): Promise<Plant[]> => {
+  const isConnected = await checkSupabaseConnection();
+  if (!isConnected) {
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('plants')
     .select('*');
   
   if (error) throw error;
-  return data;
+  return data || [];
 };
 
-export const getPlantById = async (id: string): Promise<Plant> => {
+export const getPlantById = async (id: string): Promise<Plant | null> => {
+  const isConnected = await checkSupabaseConnection();
+  if (!isConnected) {
+    return null;
+  }
+
   const { data, error } = await supabase
     .from('plants')
     .select('*')
@@ -33,6 +43,11 @@ export const getPlantById = async (id: string): Promise<Plant> => {
 };
 
 export const updatePlantImage = async (plantId: string, imageFile: File): Promise<string> => {
+  const isConnected = await checkSupabaseConnection();
+  if (!isConnected) {
+    throw new Error('Unable to connect to Supabase storage');
+  }
+
   const fileExt = imageFile.name.split('.').pop();
   const fileName = `${plantId}.${fileExt}`;
   const filePath = `plant-images/${fileName}`;
