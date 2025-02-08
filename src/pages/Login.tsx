@@ -37,13 +37,37 @@ const Login = () => {
         return null;
       }
     },
-    refetchInterval: 1000, // Check session status every second
-    retry: false, // Don't retry on error
+    refetchInterval: 500, // Check session status every 500ms instead of 1000ms
+    retry: false,
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache the results
+    // Add a timeout of 10 seconds
+    queryFn: async (context) => {
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Login timeout')), 10000)
+      );
+      const sessionPromise = supabase.auth.getSession();
+      
+      try {
+        const result = await Promise.race([sessionPromise, timeoutPromise]);
+        return result.data.session;
+      } catch (error) {
+        if (error.message === 'Login timeout') {
+          toast({
+            title: "Login Timeout",
+            description: "The login process took too long. Please try again.",
+            variant: "destructive"
+          });
+          setIsLoggingIn(false);
+        }
+        throw error;
+      }
+    }
   });
 
   useEffect(() => {
     if (supabase) {
-      supabase.auth.onAuthStateChange((event) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
         if (event === 'SIGNED_IN') {
           setIsLoggingIn(true);
           toast({
@@ -52,6 +76,11 @@ const Login = () => {
           });
         }
       });
+
+      // Cleanup subscription
+      return () => {
+        subscription?.unsubscribe();
+      };
     }
   }, [toast]);
 
@@ -75,7 +104,6 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-6 bg-white/80 backdrop-blur-sm relative animate-fade-in-up">
-        {/* Show loading overlay when logging in */}
         {isLoggingIn && (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
             <div className="flex flex-col items-center gap-3">
