@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -10,7 +9,16 @@ export const supabase = supabaseUrl && supabaseKey ?
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      flowType: 'pkce',  // More secure and faster auth flow
+      storage: window.localStorage,  // Explicitly use localStorage for better performance
+      async onAuthStateChange(event, session) {
+        // Log auth state changes for debugging
+        console.debug('Auth state changed:', event, session?.user?.email);
+      }
+    },
+    db: {
+      schema: 'public'
     }
   }) : 
   null;
@@ -23,7 +31,7 @@ export const checkSupabaseConnection = async () => {
   }
 
   try {
-    const { data, error } = await supabase.from('plants').select('id').limit(1);
+    const { error } = await supabase.auth.getSession();
     if (error) {
       console.error('Supabase connection error:', error);
       return false;

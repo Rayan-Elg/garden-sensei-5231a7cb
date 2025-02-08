@@ -1,10 +1,9 @@
-
-import { Bell, Settings, Leaf, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
+import { Bell, Leaf, LogOut, Settings } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const navigate = useNavigate();
@@ -26,35 +25,31 @@ const Navigation = () => {
 
   const handleLogout = async () => {
     try {
-      // Try to sign out locally first
-      const { error: signOutError } = await supabase.auth.signOut({
-        scope: 'local'
-      });
+      // First clear any existing session locally
+      await supabase.auth.signOut({ scope: 'local' });
       
-      if (signOutError) {
-        console.error('Logout error:', signOutError);
-        // Even if there's an error, we'll clear the session locally
-        await refetch();
-        toast({
-          title: "Session cleared",
-          description: "Your local session has been cleared.",
-        });
-        navigate('/login');
-        return;
+      // If we had a session, try to clear it globally
+      if (session) {
+        try {
+          await supabase.auth.signOut();
+        } catch (err) {
+          console.error('Global signout failed:', err);
+          // Continue with local cleanup even if global fails
+        }
       }
 
-      // Force session refetch
+      // Force session refetch and cleanup
       await refetch();
       
       toast({
         title: "Logged out successfully",
-        description: "You have been logged out of your account.",
+        description: "Your session has been cleared.",
       });
       
       navigate('/login');
     } catch (err) {
       console.error('Unexpected error during logout:', err);
-      // If anything goes wrong, force a local logout
+      // Ensure we always clear local state and redirect
       await refetch();
       navigate('/login');
       toast({
