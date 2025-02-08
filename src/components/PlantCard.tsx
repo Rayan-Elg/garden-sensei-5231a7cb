@@ -1,25 +1,26 @@
-
-import { Sprout, Droplet, Sun } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatDistanceToNow } from "date-fns";
+import { Droplet, Sprout, Sun } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface PlantCardProps {
+  id: string;  // Added id prop
   name: string;
   species: string;
   moisture: number;
   light: number;
-  lastWatered: string;
+  last_watered: string;  // Changed from lastWatered to last_watered
   image: string;
 }
 
 const PlantCard = ({
+  id,
   name,
   species,
   moisture,
   light,
-  lastWatered,
+  last_watered,  // Changed from lastWatered
   image,
 }: PlantCardProps) => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const PlantCard = ({
   return (
     <Card 
       className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer animate-fade-in bg-white/80 backdrop-blur-sm group"
-      onClick={() => navigate(`/plants/${name.toLowerCase()}`)}
+      onClick={() => navigate(`/plants/${id}`)}  // Changed to use id instead of name
     >
       <div className="aspect-video relative mb-4 overflow-hidden rounded-lg">
         <img 
@@ -66,7 +67,7 @@ const PlantCard = ({
       
       <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
         <Sprout className="w-4 h-4" />
-        <span>Last watered: {formatDistanceToNow(new Date(lastWatered), { addSuffix: true })}</span>
+        <span>Last watered: {formatDistanceToNow(new Date(last_watered), { addSuffix: true })}</span>
       </div>
 
       {moisture < 30 && (

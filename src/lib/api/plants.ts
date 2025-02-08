@@ -1,5 +1,4 @@
-
-import { supabase, checkSupabaseConnection } from '../supabase';
+import { checkSupabaseConnection, supabase } from '../supabase';
 
 export interface Plant {
   id: string;
@@ -7,7 +6,7 @@ export interface Plant {
   species: string;
   moisture: number;
   light: number;
-  lastWatered: string;
+  last_watered: string;  // Changed from lastWatered to match database column
   image: string;
   description: string;
 }
@@ -70,4 +69,99 @@ export const updatePlantImage = async (plantId: string, imageFile: File): Promis
   if (updateError) throw updateError;
 
   return publicUrl;
+};
+
+const dataUrlToFile = async (dataUrl: string, fileName: string): Promise<File> => {
+  const res = await fetch(dataUrl);
+  const blob = await res.blob();
+  return new File([blob], fileName, { type: blob.type });
+};
+
+export const createPlant = async (plant: Omit<Plant, 'id'>): Promise<Plant> => {
+  const isConnected = await checkSupabaseConnection();
+  if (!isConnected) {
+    throw new Error('Unable to connect to Supabase');
+  }
+
+  let imageUrl = null;
+  
+  // Handle image upload if image is provided as base64
+  if (plant.image && plant.image.startsWith('data:image')) {
+    try {
+      const file = await dataUrlToFile(plant.image, `${Date.now()}.jpg`);
+      const filePath = `plant-images/${file.name}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('plants')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('plants')
+        .getPublicUrl(filePath);
+
+      imageUrl = publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      // Continue with plant creation even if image upload fails
+    }
+  }
+
+  const plantWithDefaults = {
+    ...plant,
+    moisture: plant.moisture ?? 50,
+    light: plant.light ?? 50,
+    last_watered: plant.last_watered ?? new Date().toISOString(),
+    image: imageUrl || plant.image || null,
+    species: plant.species || null,
+    description: plant.description || null
+  };
+
+  const { data, error } = await supabase
+    .from('plants')
+    .insert([plantWithDefaults])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const deletePlant = async (id: string): Promise<void> => {
+  const isConnected = await checkSupabaseConnection();
+  if (!isConnected) {
+    throw new Error('Unable to connect to Supabase');
+  }
+
+  // First, try to delete the plant image from storage if it exists
+  const { data: plant } = await supabase
+    .from('plants')
+    .select('image')
+    .eq('id', id)
+    .single();
+
+  if (plant?.image) {
+    try {
+      // Extract the file path from the URL
+      const url = new URL(plant.image);
+      const filePath = url.pathname.split('/').pop();
+      if (filePath) {
+        await supabase.storage
+          .from('plants')
+          .remove([`plant-images/${filePath}`]);
+      }
+    } catch (error) {
+      console.error('Error deleting plant image:', error);
+      // Continue with plant deletion even if image deletion fails
+    }
+  }
+
+  // Delete the plant record
+  const { error } = await supabase
+    .from('plants')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
 };

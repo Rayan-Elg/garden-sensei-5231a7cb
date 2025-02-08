@@ -1,67 +1,159 @@
-
-import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Droplet, Sun, Sprout, PencilIcon } from "lucide-react";
+import Navigation from "@/components/Navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
-import Navigation from "@/components/Navigation";
-import { useState, useRef } from "react";
+import type { Plant } from "@/lib/api/plants";
+import { deletePlant, getPlantById, updatePlantImage } from "@/lib/api/plants";
+import { ArrowLeft, Droplet, PencilIcon, Sprout, Sun, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const PlantDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageUrl, setImageUrl] = useState("/lovable-uploads/4e62e7ad-8b3b-4bb0-ac4d-8455a9118a0e.png");
-  
-  // Mock data - in a real app, fetch this from your backend
-  const plant = {
-    name: "Basilic",
-    species: "Ocimum basilicum",
-    moisture: 65,
-    light: 80,
-    lastWatered: "2024-03-10",
-    image: imageUrl,
-    description: "Le basilic est une herbe aromatique populaire qui nécessite un sol humide et beaucoup de soleil. Idéal pour la cuisine, il peut être cultivé à l'intérieur ou à l'extérieur."
-  };
+  const [plant, setPlant] = useState<Plant | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (id) {
+      getPlantById(id)
+        .then(data => {
+          setPlant(data);
+          setLoading(false);
+        })
+        .catch(error => {
+          console.error('Error fetching plant:', error);
+          toast({
+            title: "Error",
+            description: "Unable to load plant details.",
+            variant: "destructive"
+          });
+          setLoading(false);
+        });
+    }
+  }, [id, toast]);
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageUrl(reader.result as string);
+    if (file && id && plant) {
+      try {
+        const newImageUrl = await updatePlantImage(id, file);
+        setPlant({ ...plant, image: newImageUrl });
         toast({
           title: "Image updated",
           description: "Your plant photo has been successfully updated.",
         });
-      };
-      reader.readAsDataURL(file);
+      } catch (error) {
+        console.error('Error updating image:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update plant image.",
+          variant: "destructive"
+        });
+      }
     }
   };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    try {
+      await deletePlant(id);
+      toast({
+        title: "Plant deleted",
+        description: "Your plant has been successfully removed.",
+      });
+      navigate("/");
+    } catch (error) {
+      console.error('Error deleting plant:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete plant.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+        <Navigation />
+        <main className="max-w-4xl mx-auto px-6 pt-24 pb-12">
+          Loading...
+        </main>
+      </div>
+    );
+  }
+
+  if (!plant) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+        <Navigation />
+        <main className="max-w-4xl mx-auto px-6 pt-24 pb-12">
+          Plant not found
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <Navigation />
       
       <main className="max-w-4xl mx-auto px-6 pt-24 pb-12">
-        <Button 
-          variant="ghost" 
-          className="mb-6 gap-2"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour
-        </Button>
+        <div className="flex justify-between items-center mb-6">
+          <Button 
+            variant="ghost" 
+            className="gap-2"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Retour
+          </Button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="icon">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Plant</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this plant? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
         
         <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden">
           <div className="aspect-[16/9] relative group">
             <img 
-              src={plant.image} 
+              src={plant.image || '/placeholder.svg'} 
               alt={plant.name}
               className="w-full h-full object-cover transition-opacity group-hover:opacity-90"
             />
@@ -116,7 +208,7 @@ const PlantDetail = () => {
             
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Sprout className="w-4 h-4" />
-              <span>Dernier arrosage: {plant.lastWatered}</span>
+              <span>Dernier arrosage: {new Date(plant.last_watered).toLocaleDateString()}</span>
             </div>
           </div>
         </div>
