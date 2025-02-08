@@ -13,19 +13,29 @@ const Login = () => {
   const { data: session, isLoading, error } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error('Auth error:', error);
-        toast({
-          title: "Authentication Error",
-          description: "There was a problem connecting to the authentication service. Please try again.",
-          variant: "destructive"
-        });
+      try {
+        // First, try to clear any existing invalid session
+        await supabase.auth.signOut({ scope: 'local' });
+        
+        // Then get fresh session
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Auth error:', error);
+          toast({
+            title: "Authentication Error",
+            description: "There was a problem connecting to the authentication service. Please try again.",
+            variant: "destructive"
+          });
+          return null;
+        }
+        return data.session;
+      } catch (err) {
+        console.error('Unexpected auth error:', err);
         return null;
       }
-      return data.session;
     },
     refetchInterval: 1000, // Check session status every second
+    retry: false, // Don't retry on error
   });
 
   if (isLoading) {

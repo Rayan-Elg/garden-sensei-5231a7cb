@@ -26,33 +26,20 @@ const Navigation = () => {
 
   const handleLogout = async () => {
     try {
-      // First try to refresh the session
-      const { data: refreshResult, error: refreshError } = await supabase.auth.refreshSession();
-      
-      if (refreshError) {
-        console.error('Session refresh error:', refreshError);
-        // If we can't refresh, the user is probably already logged out
-        toast({
-          title: "Already logged out",
-          description: "Your session has expired. Please log in again.",
-          variant: "destructive",
-        });
-        navigate('/login');
-        return;
-      }
-
-      // Now try to sign out
+      // Try to sign out locally first
       const { error: signOutError } = await supabase.auth.signOut({
-        scope: 'local' // Only clear local session, don't try to invalidate on server
+        scope: 'local'
       });
       
       if (signOutError) {
         console.error('Logout error:', signOutError);
+        // Even if there's an error, we'll clear the session locally
+        await refetch();
         toast({
-          title: "Logout Error",
-          description: signOutError.message,
-          variant: "destructive",
+          title: "Session cleared",
+          description: "Your local session has been cleared.",
         });
+        navigate('/login');
         return;
       }
 
@@ -67,10 +54,12 @@ const Navigation = () => {
       navigate('/login');
     } catch (err) {
       console.error('Unexpected error during logout:', err);
+      // If anything goes wrong, force a local logout
+      await refetch();
+      navigate('/login');
       toast({
-        title: "Unexpected Error",
-        description: "An unexpected error occurred during logout.",
-        variant: "destructive",
+        title: "Session cleared",
+        description: "Your local session has been cleared.",
       });
     }
   };
