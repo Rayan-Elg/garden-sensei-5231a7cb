@@ -1,4 +1,4 @@
-const GEMINI_API_KEY = 'AIzaSyDVRDD3PaAZrm5qnqnP98Sqa6DlT9wcbE4';
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const MAX_RETRIES = 2;
 const RETRY_DELAY = 1000; // 1 second
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB limit per image
