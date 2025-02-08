@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -73,7 +74,7 @@ const AddPlant = () => {
               )}
             </div>
           ),
-          variant: confidencePercent >= 70 ? "default" : "warning",
+          variant: confidencePercent >= 70 ? "default" : "destructive",
         });
       } else {
         toast({
