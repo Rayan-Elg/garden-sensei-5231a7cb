@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -11,11 +12,7 @@ export const supabase = supabaseUrl && supabaseKey ?
       persistSession: true,
       detectSessionInUrl: true,
       flowType: 'pkce',  // More secure and faster auth flow
-      storage: window.localStorage,  // Explicitly use localStorage for better performance
-      async onAuthStateChange(event, session) {
-        // Log auth state changes for debugging
-        console.debug('Auth state changed:', event, session?.user?.email);
-      }
+      storage: window.localStorage  // Explicitly use localStorage for better performance
     },
     db: {
       schema: 'public'

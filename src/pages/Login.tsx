@@ -6,7 +6,7 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 
 const Login = () => {
@@ -41,15 +41,19 @@ const Login = () => {
     retry: false, // Don't retry on error
   });
 
-  const handleAuthEvent = (event: 'SIGNED_IN' | 'SIGNED_OUT' | 'USER_UPDATED' | 'PASSWORD_RECOVERY' | any) => {
-    if (event === 'SIGNED_IN') {
-      setIsLoggingIn(true);
-      toast({
-        title: "Logging in...",
-        description: "Please wait while we set up your session.",
+  useEffect(() => {
+    if (supabase) {
+      supabase.auth.onAuthStateChange((event) => {
+        if (event === 'SIGNED_IN') {
+          setIsLoggingIn(true);
+          toast({
+            title: "Logging in...",
+            description: "Please wait while we set up your session.",
+          });
+        }
       });
     }
-  };
+  }, [toast]);
 
   if (isLoading) {
     return (
@@ -136,14 +140,6 @@ const Login = () => {
                 }
               }
             }}
-            onSubmit={() => {
-              setIsLoggingIn(true);
-              toast({
-                title: "Logging in...",
-                description: "Verifying your credentials",
-              });
-            }}
-            onAuthStateChange={handleAuthEvent}
           />
         )}
       </Card>
