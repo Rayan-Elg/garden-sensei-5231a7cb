@@ -62,15 +62,7 @@ const Login = () => {
             }}
             providers={['google', 'github']}
             redirectTo={redirectTo}
-            showLinks={false}
-            onError={(error) => {
-              console.error('Auth UI error:', error);
-              toast({
-                title: "Authentication Error",
-                description: error.message,
-                variant: "destructive"
-              });
-            }}
+            onlyThirdPartyProviders
           />
         )}
       </Card>
