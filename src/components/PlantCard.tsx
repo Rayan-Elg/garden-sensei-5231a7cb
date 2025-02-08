@@ -1,5 +1,5 @@
 
-import { Plant, Droplet, Sun } from "lucide-react";
+import { Sprout, Droplet, Sun } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
@@ -63,7 +63,7 @@ const PlantCard = ({
       </div>
       
       <div className="flex items-center gap-2 mt-4 text-sm text-gray-500">
-        <Plant className="w-4 h-4" />
+        <Sprout className="w-4 h-4" />
         <span>Last watered: {lastWatered}</span>
       </div>
     </Card>
