@@ -12,7 +12,7 @@ const PlantDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageUrl, setImageUrl] = useState("/lovable-uploads/4b767a9d-283b-4b0f-91d9-0d13bef5af71.png");
+  const [imageUrl, setImageUrl] = useState("/lovable-uploads/4e62e7ad-8b3b-4bb0-ac4d-8455a9118a0e.png");
   
   // Mock data - in a real app, fetch this from your backend
   const plant = {

@@ -1,4 +1,3 @@
-
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -14,7 +13,7 @@ const mockPlants = [
     moisture: 65,
     light: 80,
     lastWatered: "2024-03-10",
-    image: "/lovable-uploads/4b767a9d-283b-4b0f-91d9-0d13bef5af71.png"
+    image: "/lovable-uploads/4e62e7ad-8b3b-4bb0-ac4d-8455a9118a0e.png"
   },
   {
     name: "Tomate",
@@ -22,7 +21,7 @@ const mockPlants = [
     moisture: 45,
     light: 90,
     lastWatered: "2024-03-11",
-    image: "/lovable-uploads/89967f8c-bf6e-448b-a8da-753d8d25cb15.png"
+    image: "/lovable-uploads/ceda9635-71d0-47d6-8dbf-65403d49beb4.png"
   }
 ];
 
