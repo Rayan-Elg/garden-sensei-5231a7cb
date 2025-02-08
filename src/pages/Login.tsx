@@ -19,6 +19,9 @@ const Login = () => {
     return <Navigate to="/" replace />;
   }
 
+  // Ensure we're using the correct port for local development
+  const redirectTo = `${window.location.origin}/auth/callback`;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-6 bg-white/80 backdrop-blur-sm">
@@ -28,7 +31,7 @@ const Login = () => {
             supabaseClient={supabase}
             appearance={{ theme: ThemeSupa }}
             providers={['google', 'github']}
-            redirectTo={`${window.location.protocol}//${window.location.hostname}:${window.location.port}`}
+            redirectTo={redirectTo}
           />
         )}
       </Card>
