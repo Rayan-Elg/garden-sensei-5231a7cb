@@ -32,7 +32,6 @@ const Index = () => {
     retry: false
   });
 
-  // Show error toast if there's a connection error
   useEffect(() => {
     if (plantsError) {
       toast({
@@ -61,9 +60,19 @@ const Index = () => {
         </Card>
 
         <Tabs defaultValue="plants" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
-            <TabsTrigger value="plants">Plants</TabsTrigger>
-            <TabsTrigger value="sensors">Sensors</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 max-w-[400px] border border-border bg-white shadow-sm">
+            <TabsTrigger 
+              value="plants"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-colors"
+            >
+              Plants
+            </TabsTrigger>
+            <TabsTrigger 
+              value="sensors"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-colors"
+            >
+              Sensors
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="plants" className="space-y-6">
