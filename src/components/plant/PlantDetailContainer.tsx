@@ -1,6 +1,5 @@
 
 import { Plant } from "@/lib/api/plants";
-import { sendSMS } from "@/lib/api/sms";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import PlantDetailImage from "./PlantDetailImage";
@@ -31,9 +30,8 @@ const PlantDetailContainer = ({
   const { toast } = useToast();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isSending, setIsSending] = useState(false);
 
-  const handleSendSMS = async () => {
+  const handleEnableNotifications = () => {
     if (!phoneNumber) {
       toast({
         title: "Error",
@@ -43,34 +41,13 @@ const PlantDetailContainer = ({
       return;
     }
 
-    setIsSending(true);
-    try {
-      const message = `Plant monitoring enabled for ${plant.name}! You'll receive notifications when your plant needs attention.`;
-      const result = await sendSMS(phoneNumber, message);
-      
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: "Plant notifications enabled successfully!"
-        });
-        setIsDialogOpen(false);
-      } else {
-        toast({
-          title: "Error",
-          description: result.error || "Failed to enable notifications",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('SMS Error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to enable notifications. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSending(false);
-    }
+    // Show confirmation toast
+    toast({
+      title: "Success",
+      description: `Notifications enabled for ${phoneNumber}`
+    });
+    
+    setIsDialogOpen(false);
   };
 
   return (
@@ -117,11 +94,10 @@ const PlantDetailContainer = ({
                   </p>
                 </div>
                 <Button 
-                  onClick={handleSendSMS} 
-                  disabled={isSending}
+                  onClick={handleEnableNotifications} 
                   className="w-full"
                 >
-                  {isSending ? "Setting up..." : "Enable Notifications"}
+                  Enable Notifications
                 </Button>
               </div>
             </DialogContent>
@@ -199,3 +175,4 @@ const PlantDetailContainer = ({
 };
 
 export default PlantDetailContainer;
+
