@@ -15,7 +15,7 @@ const PlantMetrics = ({ moisture, light, temperature = 22 }: PlantMetricsProps) 
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <Droplet className="w-4 h-4 text-blue-500" />
-            <span>Humidité</span>
+            <span>Moisture</span>
           </div>
           <span className="transition-all duration-500">{moisture}%</span>
         </div>
@@ -26,7 +26,7 @@ const PlantMetrics = ({ moisture, light, temperature = 22 }: PlantMetricsProps) 
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <Sun className="w-4 h-4 text-yellow-500" />
-            <span>Lumière</span>
+            <span>Light</span>
           </div>
           <span className="transition-all duration-500">{light}%</span>
         </div>
@@ -48,4 +48,3 @@ const PlantMetrics = ({ moisture, light, temperature = 22 }: PlantMetricsProps) 
 };
 
 export default PlantMetrics;
-
