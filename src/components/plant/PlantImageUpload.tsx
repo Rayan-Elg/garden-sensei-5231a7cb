@@ -16,6 +16,7 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
   const [identifying, setIdentifying] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [hasIdentified, setHasIdentified] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -28,6 +29,7 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
         onImageChange(file, preview);
       };
       reader.readAsDataURL(file);
+      setHasIdentified(false); // Reset identification state when new image is uploaded
     }
   };
 
@@ -39,6 +41,7 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
       const result = await identifyPlant(imageFile);
       if (result) {
         onIdentifySuccess(result);
+        setHasIdentified(true);
 
         const confidencePercent = Math.round(result.confidence * 100);
         const confidenceEmoji = confidencePercent >= 90 ? '🎯' : 
@@ -96,6 +99,7 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
                 onClick={() => {
                   setImagePreview(null);
                   setImageFile(null);
+                  setHasIdentified(false);
                   onImageChange(null as any, '');
                 }}
               >
@@ -114,7 +118,7 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Identifying...
                   </>
-                ) : imageFile ? (
+                ) : hasIdentified ? (
                   <>
                     <Leaf className="w-4 h-4 mr-2 text-green-500" />
                     Re-identify
@@ -152,3 +156,4 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
 };
 
 export default PlantImageUpload;
+
