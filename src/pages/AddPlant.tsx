@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Plant } from "@/lib/api/plants";
 import { createPlant } from "@/lib/api/plants";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -36,7 +36,14 @@ const AddPlant = () => {
     last_watered: new Date().toISOString(),
     image: '',
     description: '',
-    user_id: '' // This will be set with the actual user_id before creating the plant
+    user_id: '', // This will be set with the actual user_id before creating the plant
+    care_water: '',
+    care_humidity: '',
+    care_light: '',
+    care_soil: '',
+    care_temperature: '',
+    care_fertilizer: '',
+    care_warnings: ''
   });
 
   const handleImageChange = (imageFile: File, imagePreview: string) => {
@@ -54,7 +61,14 @@ const AddPlant = () => {
       ...prev,
       name: result.name,
       species: result.species,
-      description: result.description
+      description: result.description,
+      care_water: result.careGuide.water,
+      care_humidity: result.careGuide.humidity,
+      care_light: result.careGuide.light,
+      care_soil: result.careGuide.soil,
+      care_temperature: result.careGuide.temperature,
+      care_fertilizer: result.careGuide.fertilizer,
+      care_warnings: result.careGuide.warnings
     }));
     setCareGuide(result.careGuide);
   };
@@ -86,7 +100,9 @@ const AddPlant = () => {
         user_id: session.user.id
       };
 
+      console.log('Submitting plant data:', plantData);
       await createPlant(plantData);
+      
       toast({
         title: "Plant Added Successfully",
         description: "Your new plant has been added to your garden.",

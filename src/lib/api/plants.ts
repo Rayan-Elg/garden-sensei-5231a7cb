@@ -135,8 +135,17 @@ export const createPlant = async (plant: Omit<Plant, 'id' | 'user_id'>): Promise
     last_watered: plant.last_watered ?? new Date().toISOString(),
     image: imageUrl || plant.image || null,
     species: plant.species || null,
-    description: plant.description || null
+    description: plant.description || null,
+    care_water: plant.care_water || null,
+    care_humidity: plant.care_humidity || null,
+    care_light: plant.care_light || null,
+    care_soil: plant.care_soil || null,
+    care_temperature: plant.care_temperature || null,
+    care_fertilizer: plant.care_fertilizer || null,
+    care_warnings: plant.care_warnings || null
   };
+
+  console.log('Creating plant with data:', plantWithDefaults);
 
   const { data, error } = await supabase
     .from('plants')
@@ -144,7 +153,12 @@ export const createPlant = async (plant: Omit<Plant, 'id' | 'user_id'>): Promise
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error creating plant:', error);
+    throw error;
+  }
+  
+  console.log('Plant created successfully:', data);
   return data;
 };
 
