@@ -1,15 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
-import { Award, Leaf, LogOut, Plant } from "lucide-react";
+import { Bell, Leaf, LogOut, Settings } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { NotificationPanel } from "./NotificationPanel";
 
 const Navigation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Get current session with more frequent refetching
   const { data: session, refetch } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
@@ -20,21 +20,25 @@ const Navigation = () => {
       }
       return data.session;
     },
-    refetchInterval: 5000,
+    refetchInterval: 5000, // Refetch every 5 seconds to keep session fresh
   });
 
   const handleLogout = async () => {
     try {
+      // First clear any existing session locally
       await supabase.auth.signOut({ scope: 'local' });
       
+      // If we had a session, try to clear it globally
       if (session) {
         try {
           await supabase.auth.signOut();
         } catch (err) {
           console.error('Global signout failed:', err);
+          // Continue with local cleanup even if global fails
         }
       }
 
+      // Force session refetch and cleanup
       await refetch();
       
       toast({
@@ -45,6 +49,7 @@ const Navigation = () => {
       navigate('/login');
     } catch (err) {
       console.error('Unexpected error during logout:', err);
+      // Ensure we always clear local state and redirect
       await refetch();
       navigate('/login');
       toast({
@@ -56,35 +61,23 @@ const Navigation = () => {
 
   return (
     <nav className="w-full py-4 px-6 border-b bg-white/80 backdrop-blur-sm fixed top-0 z-50">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-2 text-primary-600 hover:text-primary-700 transition-colors">
-            <Leaf className="w-6 h-6" />
-            <span className="text-xl font-semibold">SmartGarden Manager</span>
-          </Link>
-          
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 bg-green-50 py-1 px-3 rounded-full">
-              <Award className="w-4 h-4 text-green-600" />
-              <span className="text-sm text-green-700">PolyHacks 2025</span>
-            </div>
-            <div className="hidden md:flex items-center gap-2 bg-blue-50 py-1 px-3 rounded-full">
-              <Plant className="w-4 h-4 text-blue-600" />
-              <span className="text-sm text-blue-700">Sur la terre</span>
-            </div>
-            <NotificationPanel />
-            <Button variant="ghost" size="icon" onClick={handleLogout}>
-              <LogOut className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-        <div className="md:hidden flex gap-2 mt-2 justify-center text-xs">
-          <span className="bg-green-50 py-1 px-2 rounded-full text-green-700 flex items-center gap-1">
-            <Award className="w-3 h-3" /> PolyHacks 2025
-          </span>
-          <span className="bg-blue-50 py-1 px-2 rounded-full text-blue-700 flex items-center gap-1">
-            <Plant className="w-3 h-3" /> Sur la terre
-          </span>
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <Link to="/" className="flex items-center gap-2 text-primary-600 hover:text-primary-700 transition-colors">
+          <Leaf className="w-6 h-6" />
+          <span className="text-xl font-semibold">SmartGarden Manager</span>
+        </Link>
+        
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Settings className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={handleLogout}>
+            <LogOut className="w-5 h-5" />
+          </Button>
         </div>
       </div>
     </nav>
