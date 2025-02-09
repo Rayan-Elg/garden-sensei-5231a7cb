@@ -121,15 +121,24 @@ const PlantDetail = () => {
 
     setIsSending(true);
     try {
+      console.log('Attempting to send SMS to:', cleanPhone); // Debug log
+      
       const response = await fetch('https://textbelt.com/text', {
         method: 'post',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           phone: cleanPhone,
           message: `Your plant ${plant?.name} is now being monitored and you will receive notifications if it needs you!`,
           key: '39bbdf476046aa16d8749550512216f1e2b393090aXdzG5eyrvQO3dTIT1YLH31l',
         }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
       console.log('SMS API Response:', data); // For debugging
@@ -145,9 +154,11 @@ const PlantDetail = () => {
       }
     } catch (error: any) {
       console.error('Error sending SMS:', error);
+      const errorMessage = error.message || "Failed to set up SMS notifications. Please try again.";
+      console.error('Detailed error:', errorMessage); // Additional error logging
       toast({
         title: "Error",
-        description: error.message || "Failed to set up SMS notifications. Please try again.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
