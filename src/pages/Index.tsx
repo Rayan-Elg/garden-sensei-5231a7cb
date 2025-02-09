@@ -5,7 +5,7 @@ import SensorCard from "@/components/SensorCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { getPlants } from "@/lib/api/plants";
 import { getSensors } from "@/lib/api/sensors";
 import { useQuery } from "@tanstack/react-query";
@@ -32,6 +32,11 @@ const Index = () => {
     retry: false
   });
 
+  const { data: sensors = [], isLoading: sensorsLoading } = useQuery({
+    queryKey: ['sensors'],
+    queryFn: getSensors
+  });
+
   useEffect(() => {
     if (plantsError) {
       toast({
@@ -41,11 +46,6 @@ const Index = () => {
       });
     }
   }, [plantsError, toast]);
-
-  const { data: sensors = [], isLoading: sensorsLoading } = useQuery({
-    queryKey: ['sensors'],
-    queryFn: getSensors
-  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
