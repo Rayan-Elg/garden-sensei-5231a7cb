@@ -129,16 +129,14 @@ const PlantDetail = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
+        mode: 'cors',
+        credentials: 'omit',
         body: JSON.stringify({
           phone: cleanPhone,
           message: `Your plant ${plant?.name} is now being monitored and you will receive notifications if it needs you!`,
           key: '39bbdf476046aa16d8749550512216f1e2b393090aXdzG5eyrvQO3dTIT1YLH31l',
         }),
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
       const data = await response.json();
       console.log('SMS API Response:', data); // For debugging
