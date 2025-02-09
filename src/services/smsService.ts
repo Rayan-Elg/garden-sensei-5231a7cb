@@ -10,6 +10,8 @@ interface SendSMSResponse {
 
 export const sendSMS = async (phoneNumber: string, message: string): Promise<SendSMSResponse> => {
   try {
+    console.log('Sending SMS via Supabase function to:', phoneNumber);
+    
     const { data, error } = await supabase.functions.invoke('send-sms', {
       body: {
         phoneNumber,
