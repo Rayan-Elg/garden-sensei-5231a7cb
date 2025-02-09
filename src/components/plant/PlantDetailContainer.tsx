@@ -45,26 +45,27 @@ const PlantDetailContainer = ({
 
     setIsSending(true);
     try {
-      const message = `Your plant will now notify you when it needs you!`;
+      const message = `Plant monitoring enabled for ${plant.name}! You'll receive notifications when your plant needs attention.`;
       const result = await sendSMS(phoneNumber, message);
       
       if (result.success) {
         toast({
           title: "Success",
-          description: "Notification setup completed successfully"
+          description: "Plant notifications enabled successfully!"
         });
         setIsDialogOpen(false);
       } else {
         toast({
           title: "Error",
-          description: result.error || "Failed to setup notifications",
+          description: result.error || "Failed to enable notifications",
           variant: "destructive"
         });
       }
     } catch (error) {
+      console.error('SMS Error:', error);
       toast({
         title: "Error",
-        description: "Failed to setup notifications",
+        description: "Failed to enable notifications. Please try again.",
         variant: "destructive"
       });
     } finally {

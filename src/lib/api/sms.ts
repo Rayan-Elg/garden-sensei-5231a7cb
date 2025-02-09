@@ -33,7 +33,7 @@ export const sendSMS = async (phoneNumber: string, message: string): Promise<Sen
 
     return {
       success: data.success,
-      message: data.success ? 'SMS sent successfully' : undefined,
+      message: data.message || 'SMS sent successfully',
       error: data.error
     };
   } catch (error) {
