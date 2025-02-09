@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { identifyPlant } from "@/lib/api/plant-identification";
-import { Leaf, Loader2, Upload, Wand2 } from "lucide-react";
+import { Camera, Leaf, Loader2, Upload, Wand2, X } from "lucide-react";
 import { useState } from "react";
 
 interface PlantImageUploadProps {
   onImageChange: (imageFile: File, imagePreview: string) => void;
-  onIdentifySuccess: (data: { name: string; species: string; description: string }) => void;
+  onIdentifySuccess: (data: { name: string; species: string; description: string; careGuide: any }) => void;
 }
 
 const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUploadProps) => {
@@ -21,6 +21,26 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload an image file (JPG, PNG, etc.)",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please upload an image smaller than 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
+
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -29,7 +49,7 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
         onImageChange(file, preview);
       };
       reader.readAsDataURL(file);
-      setHasIdentified(false); // Reset identification state when new image is uploaded
+      setHasIdentified(false);
     }
   };
 
@@ -103,7 +123,8 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
                   onImageChange(null as any, '');
                 }}
               >
-                Change
+                <X className="w-4 h-4 mr-2" />
+                Remove
               </Button>
               <Button
                 type="button"
@@ -140,17 +161,42 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
               className="hidden"
               onChange={handleImageChange}
             />
-            <div className="flex flex-col items-center gap-2 text-gray-500">
-              <Upload className="w-8 h-8" />
-              <span>Click or drop an image here</span>
-              <p className="text-sm text-muted-foreground text-center max-w-[300px]">
-                Upload a clear photo of your plant for AI identification. 
-                Best results with photos of leaves, flowers, or the whole plant.
+            <div className="flex flex-col items-center gap-4 p-8">
+              <Camera className="w-12 h-12 text-gray-400" />
+              <div className="text-center space-y-2">
+                <h3 className="font-semibold text-lg">Upload a Plant Photo</h3>
+                <p className="text-sm text-muted-foreground">
+                  Take or upload a photo of your plant to get started. Our AI will help identify it!
+                </p>
+                <Button variant="secondary" className="mt-4">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Choose Photo
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-4">
+                Or just drag and drop an image here
               </p>
             </div>
           </label>
         )}
       </div>
+      {!imagePreview && (
+        <div className="text-center mt-4">
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={() => {
+              onImageChange(null as any, '');
+              toast({
+                title: "Manual Plant Entry",
+                description: "You can now add your plant details manually.",
+              });
+            }}
+          >
+            Skip photo and add plant manually
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
