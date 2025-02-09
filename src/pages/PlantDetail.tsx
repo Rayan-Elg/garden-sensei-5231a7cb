@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import { useToast } from "@/hooks/use-toast";
 import type { Plant } from "@/lib/api/plants";
@@ -140,14 +141,6 @@ const PlantDetail = () => {
     }
   };
 
-  const handleMoistureChange = (newMoisture: number) => {
-    if (plant) {
-      const updatedPlant = { ...plant, moisture: newMoisture };
-      setPlant(updatedPlant);
-      checkMoistureLevel(updatedPlant);
-    }
-  };
-
   const hasCareGuide = plant && (
     plant.care_water ||
     plant.care_humidity ||
@@ -255,7 +248,6 @@ const PlantDetail = () => {
             <PlantMetrics
               moisture={plant.moisture}
               light={plant.light}
-              onMoistureChange={handleMoistureChange}
             />
 
             <PlantCareGuide
@@ -264,7 +256,7 @@ const PlantDetail = () => {
               setIsCareGuideOpen={setIsCareGuideOpen}
               isUpdatingCare={isUpdatingCare}
               onUpdateCare={updateCareInfo}
-              needsCareUpdate={!plant.care_humidity}
+              needsCareUpdate={needsCareUpdate}
             />
           </div>
         </div>
