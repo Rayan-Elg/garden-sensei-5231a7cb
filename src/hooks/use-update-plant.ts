@@ -1,6 +1,7 @@
 
 import { useToast } from "@/hooks/use-toast";
-import { identifyPlant, updatePlantImage, updatePlantCareInfo, deletePlant } from "@/lib/api/plants";
+import { updatePlantImage, updatePlantCareInfo, deletePlant } from "@/lib/api/plants";
+import { identifyPlant } from "@/lib/api/plant-identification";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
