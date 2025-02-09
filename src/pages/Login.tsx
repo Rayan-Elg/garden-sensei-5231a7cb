@@ -1,93 +1,79 @@
-
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/lib/supabase';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Leaf, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 const Login = () => {
   const { toast } = useToast();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const { data: session, isLoading, error } = useQuery({
+  const { data: session, isLoading } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
       try {
-        // First, try to clear any existing invalid session
-        await supabase.auth.signOut({ scope: 'local' });
-        
-        // Then get fresh session
-        const { data, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error('Auth error:', error);
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        return session;
+      } catch (error: any) {
+        setIsLoggingIn(false);
+        if (error.message?.includes('Invalid login credentials')) {
           toast({
-            title: "Authentication Error",
-            description: "There was a problem connecting to the authentication service. Please try again.",
+            title: "Invalid credentials",
+            description: "Please check your email and password and try again.",
             variant: "destructive"
           });
-          return null;
         }
-        return data.session;
-      } catch (err) {
-        console.error('Unexpected auth error:', err);
         return null;
       }
     },
-    refetchInterval: 500, // Check session status every 500ms instead of 1000ms
+    refetchInterval: 500,
     retry: false,
-    staleTime: 0, // Always fetch fresh data
-    cacheTime: 0, // Don't cache the results
-    // Add a timeout of 10 seconds
-    queryFn: async (context) => {
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Login timeout')), 10000)
-      );
-      const sessionPromise = supabase.auth.getSession();
-      
-      try {
-        const result = await Promise.race([sessionPromise, timeoutPromise]);
-        return result.data.session;
-      } catch (error) {
-        if (error.message === 'Login timeout') {
-          toast({
-            title: "Login Timeout",
-            description: "The login process took too long. Please try again.",
-            variant: "destructive"
-          });
-          setIsLoggingIn(false);
-        }
-        throw error;
-      }
-    }
+    gcTime: 0,
+    staleTime: 0
   });
 
   useEffect(() => {
-    if (supabase) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-        if (event === 'SIGNED_IN') {
+    if (!supabase) return;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+      switch (event) {
+        case 'SIGNED_IN':
           setIsLoggingIn(true);
           toast({
             title: "Logging in...",
             description: "Please wait while we set up your session.",
           });
-        }
-      });
+          break;
+        case 'SIGNED_OUT':
+          setIsLoggingIn(false);
+          break;
+        case 'USER_UPDATED':
+          setIsLoggingIn(false);
+          break;
+        case 'PASSWORD_RECOVERY':
+          toast({
+            title: "Password reset email sent",
+            description: "Check your email for the password reset link.",
+          });
+          break;
+      }
+    });
 
-      // Cleanup subscription
-      return () => {
-        subscription?.unsubscribe();
-      };
-    }
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, [toast]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-gray-500 animate-fade-in">
+        <div className="flex flex-col items-center gap-3 text-gray-500">
           <Loader2 className="h-8 w-8 animate-spin" />
           <span className="text-sm">Checking authentication status...</span>
         </div>
@@ -105,17 +91,20 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-6 bg-white/80 backdrop-blur-sm relative animate-fade-in-up">
         {isLoggingIn && (
-          <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-              <span className="text-sm font-medium text-gray-700 animate-pulse">Setting up your session...</span>
+              <span className="text-sm font-medium text-gray-700">Setting up your session...</span>
               <span className="text-xs text-gray-500">This might take a moment</span>
             </div>
           </div>
         )}
 
-        <h1 className="text-2xl font-semibold text-center mb-2">Welcome Back</h1>
-        <p className="text-center text-gray-500 mb-6">Sign in to your account to continue</p>
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Leaf className="w-8 h-8 text-primary-600" />
+          <h1 className="text-2xl font-semibold text-center">SmartGarden Manager</h1>
+        </div>
+        {/* <p className="text-center text-gray-500 mb-6">Sign in to your account to continue</p> */}
         {supabase && (
           <Auth
             supabaseClient={supabase}
@@ -130,7 +119,7 @@ const Login = () => {
                 container: { width: '100%' },
                 message: { color: 'rgb(59 130 246)' },
                 loader: { color: 'rgb(59 130 246)' },
-                divider: { margin: '20px 0' },
+                divider: { display: 'none' },
                 input: {
                   padding: '8px 12px',
                   marginBottom: '12px'
@@ -138,6 +127,11 @@ const Login = () => {
                 label: {
                   marginBottom: '4px',
                   color: 'rgb(75 85 99)'
+                },
+                anchor: {
+                  color: 'rgb(59 130 246)',
+                  textDecoration: 'none',
+                  fontSize: '0.875rem'
                 }
               },
               variables: {
@@ -149,25 +143,40 @@ const Login = () => {
                 }
               }
             }}
-            providers={['google', 'github']}
-            redirectTo={redirectTo}
-            magicLink={true}
+            providers={[]}
+            magicLink={false}
             showLinks={true}
             onlyThirdPartyProviders={false}
             localization={{
               variables: {
                 sign_in: {
-                  email_label: 'Email address',
+                  email_label: 'Email',
                   password_label: 'Password',
                   button_label: 'Sign in',
                   loading_button_label: 'Signing in...',
-                  social_provider_text: 'Continue with {{provider}}',
-                  link_text: "Don't have an account? Sign up",
                   email_input_placeholder: 'Enter your email',
-                  password_input_placeholder: 'Enter your password'
+                  password_input_placeholder: 'Enter your password',
+                  link_text: "Already have an account? Sign in"
+                },
+                sign_up: {
+                  email_label: 'Email',
+                  password_label: 'Password',
+                  button_label: 'Create account',
+                  loading_button_label: 'Creating your account...',
+                  link_text: 'New here? Create an account',
+                  email_input_placeholder: 'Enter your email',
+                  password_input_placeholder: 'Create a password'
+                },
+                forgotten_password: {
+                  email_label: 'Email',
+                  button_label: 'Reset password',
+                  loading_button_label: 'Sending reset link...',
+                  link_text: 'Forgot your password?'
                 }
               }
             }}
+            redirectTo={redirectTo}
+            view={isLoggingIn ? 'sign_in' : undefined}
           />
         )}
       </Card>

@@ -1,4 +1,3 @@
-
 import Navigation from "@/components/Navigation";
 import PlantForm from "@/components/plant/PlantForm";
 import PlantImageUpload from "@/components/plant/PlantImageUpload";
@@ -7,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { Plant } from "@/lib/api/plants";
 import { createPlant } from "@/lib/api/plants";
+import { supabase } from "@/lib/supabase";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +16,7 @@ const AddPlant = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Omit<Plant, 'id'>>({
+  const [formData, setFormData] = useState<Omit<Plant, 'id' | 'user_id'>>({
     name: '',
     species: '',
     moisture: 50,
@@ -50,6 +50,17 @@ const AddPlant = () => {
     setLoading(true);
     
     try {
+      // Check auth status first
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('You must be logged in to add a plant');
+      }
+
+      // Validate required fields
+      if (!formData.name.trim()) {
+        throw new Error('Plant name is required');
+      }
+
       await createPlant(formData);
       toast({
         title: "Plant Added Successfully",
@@ -59,8 +70,8 @@ const AddPlant = () => {
     } catch (error: any) {
       console.error('Error adding plant:', error);
       toast({
-        title: "Error",
-        description: error.message || "An error occurred while adding the plant.",
+        title: "Error Adding Plant",
+        description: error?.message || error?.error_description || "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {

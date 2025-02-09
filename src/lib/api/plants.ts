@@ -9,6 +9,7 @@ export interface Plant {
   last_watered: string;  // Changed from lastWatered to match database column
   image: string;
   description: string;
+  user_id: string;
 }
 
 export const getPlants = async (): Promise<Plant[]> => {
@@ -17,9 +18,13 @@ export const getPlants = async (): Promise<Plant[]> => {
     return [];
   }
 
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+
   const { data, error } = await supabase
     .from('plants')
-    .select('*');
+    .select('*')
+    .eq('user_id', user.id);
   
   if (error) throw error;
   return data || [];
@@ -31,10 +36,14 @@ export const getPlantById = async (id: string): Promise<Plant | null> => {
     return null;
   }
 
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+
   const { data, error } = await supabase
     .from('plants')
     .select('*')
     .eq('id', id)
+    .eq('user_id', user.id)
     .single();
   
   if (error) throw error;
@@ -77,11 +86,14 @@ const dataUrlToFile = async (dataUrl: string, fileName: string): Promise<File> =
   return new File([blob], fileName, { type: blob.type });
 };
 
-export const createPlant = async (plant: Omit<Plant, 'id'>): Promise<Plant> => {
+export const createPlant = async (plant: Omit<Plant, 'id' | 'user_id'>): Promise<Plant> => {
   const isConnected = await checkSupabaseConnection();
   if (!isConnected) {
     throw new Error('Unable to connect to Supabase');
   }
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
 
   let imageUrl = null;
   
@@ -89,7 +101,7 @@ export const createPlant = async (plant: Omit<Plant, 'id'>): Promise<Plant> => {
   if (plant.image && plant.image.startsWith('data:image')) {
     try {
       const file = await dataUrlToFile(plant.image, `${Date.now()}.jpg`);
-      const filePath = `plant-images/${file.name}`;
+      const filePath = `plant-images/${user.id}/${file.name}`;
       
       const { error: uploadError } = await supabase.storage
         .from('plants')
@@ -110,6 +122,7 @@ export const createPlant = async (plant: Omit<Plant, 'id'>): Promise<Plant> => {
 
   const plantWithDefaults = {
     ...plant,
+    user_id: user.id,
     moisture: plant.moisture ?? 50,
     light: plant.light ?? 50,
     last_watered: plant.last_watered ?? new Date().toISOString(),

@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -10,9 +9,16 @@ export const supabase = supabaseUrl && supabaseKey ?
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true,
+      detectSessionInUrl: false, // Disable URL detection since we're not using OAuth
       flowType: 'pkce',  // More secure and faster auth flow
-      storage: window.localStorage  // Explicitly use localStorage for better performance
+      storage: window.localStorage,  // Explicitly use localStorage for better performance
+      debug: false // Disable debug logs
+    },
+    global: {
+      // Custom error handler to prevent default error behavior
+      headers: {
+        'x-client-info': 'garden-sensei'
+      }
     },
     db: {
       schema: 'public'
