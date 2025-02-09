@@ -8,10 +8,11 @@ interface SendSMSResponse {
 
 export const sendSMS = async (phoneNumber: string, message: string): Promise<SendSMSResponse> => {
   try {
-    const response = await fetch('https://api.cors-anywhere.org/https://textbelt.com/text', {
+    const response = await fetch('https://proxy.cors.sh/https://textbelt.com/text', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-cors-api-key': 'temp_f639e2c096f6614460addf87d2925bbb',
         'Origin': window.location.origin
       },
       body: JSON.stringify({
@@ -21,7 +22,14 @@ export const sendSMS = async (phoneNumber: string, message: string): Promise<Sen
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('SMS API Error:', errorData);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     const data = await response.json();
+    console.log('SMS API Response:', data);
     return data;
   } catch (error) {
     console.error('SMS Service Error:', error);
