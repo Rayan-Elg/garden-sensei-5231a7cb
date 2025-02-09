@@ -1,4 +1,3 @@
-
 import { checkSupabaseConnection, supabase } from '../supabase';
 
 export interface Plant {
@@ -234,10 +233,17 @@ export const updatePlantSensorData = async (id: string, sensorData: PlantSensorD
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('User not authenticated');
 
+  // Validate the input data
   const updateData: any = {};
-  if (typeof sensorData.moisture === 'number') updateData.moisture = sensorData.moisture;
-  if (typeof sensorData.light === 'number') updateData.light = sensorData.light;
-  if (typeof sensorData.temperature === 'number') updateData.temperature = sensorData.temperature;
+  if (typeof sensorData.moisture === 'number' && sensorData.moisture >= 0 && sensorData.moisture <= 100) {
+    updateData.moisture = sensorData.moisture;
+  }
+  if (typeof sensorData.light === 'number' && sensorData.light >= 0 && sensorData.light <= 100) {
+    updateData.light = sensorData.light;
+  }
+  if (typeof sensorData.temperature === 'number' && sensorData.temperature >= -50 && sensorData.temperature <= 100) {
+    updateData.temperature = sensorData.temperature;
+  }
 
   console.log('Updating plant sensor data:', { id, updateData });
 
