@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
@@ -40,6 +41,7 @@ const Navigation = () => {
       toast({
         title: "Logged out successfully",
         description: "Your session has been cleared.",
+        duration: 2000, // Reduced from default 5000ms to 2000ms
       });
       
       navigate('/login');
@@ -50,6 +52,7 @@ const Navigation = () => {
       toast({
         title: "Session cleared",
         description: "Your local session has been cleared.",
+        duration: 2000, // Reduced from default 5000ms to 2000ms
       });
     }
   };
