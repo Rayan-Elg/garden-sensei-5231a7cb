@@ -11,11 +11,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import type { Plant } from "@/lib/api/plants";
 import { deletePlant, getPlantById, updatePlantImage } from "@/lib/api/plants";
-import { ArrowLeft, Droplet, PencilIcon, Sprout, Sun, Trash2 } from "lucide-react";
+import { ArrowLeft, Bell, Droplet, PencilIcon, PhoneCall, Sprout, Sun, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -26,6 +36,8 @@ const PlantDetail = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [plant, setPlant] = useState<Plant | null>(null);
   const [loading, setLoading] = useState(true);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -90,6 +102,16 @@ const PlantDetail = () => {
     }
   };
 
+  const handlePhoneNumberSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // The actual SMS sending logic will be implemented by the user
+    setIsDialogOpen(false);
+    toast({
+      title: "Phone number submitted",
+      description: "You'll receive SMS notifications for this plant.",
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -127,27 +149,60 @@ const PlantDetail = () => {
             Retour
           </Button>
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="icon">
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Plant</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete this plant? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <div className="flex gap-2">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="secondary" className="gap-2">
+                  <Bell className="w-4 h-4" />
+                  Activer les notifications SMS
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <form onSubmit={handlePhoneNumberSubmit}>
+                  <DialogHeader>
+                    <DialogTitle>Configurer les notifications SMS</DialogTitle>
+                    <DialogDescription>
+                      Entrez votre numéro de téléphone pour recevoir des notifications concernant {plant.name}.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="py-6">
+                    <Input
+                      type="tel"
+                      placeholder="Entrez votre numéro de téléphone"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Activer les notifications</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="icon">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Plant</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this plant? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
         
         <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden">
