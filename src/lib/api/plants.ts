@@ -19,6 +19,12 @@ export interface Plant {
   care_warnings?: string;
 }
 
+export interface PlantSensorData {
+  moisture?: number;
+  light?: number;
+  temperature?: number;
+}
+
 export const getPlants = async (): Promise<Plant[]> => {
   const isConnected = await checkSupabaseConnection();
   if (!isConnected) {
@@ -210,6 +216,31 @@ export const updatePlantCareInfo = async (id: string, careInfo: Partial<Plant>):
     .from('plants')
     .update(careInfo)
     .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const updatePlantSensorData = async (id: string, sensorData: PlantSensorData): Promise<Plant> => {
+  const isConnected = await checkSupabaseConnection();
+  if (!isConnected) {
+    throw new Error('Unable to connect to Supabase');
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const updateData: any = {};
+  if (typeof sensorData.moisture === 'number') updateData.moisture = sensorData.moisture;
+  if (typeof sensorData.light === 'number') updateData.light = sensorData.light;
+
+  const { data, error } = await supabase
+    .from('plants')
+    .update(updateData)
+    .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single();
 
