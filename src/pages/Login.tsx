@@ -1,12 +1,12 @@
 
 import { Card } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { useQuery } from '@tanstack/react-query';
-import { Droplet, Leaf, Loader2, Sun } from 'lucide-react';
+import { Leaf, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
