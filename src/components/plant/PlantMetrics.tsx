@@ -5,10 +5,10 @@ import { Droplet, Sun, Thermometer } from "lucide-react";
 interface PlantMetricsProps {
   moisture: number;
   light: number;
-  temperature?: number;
+  temperature: number;
 }
 
-const PlantMetrics = ({ moisture, light, temperature = 22 }: PlantMetricsProps) => {
+const PlantMetrics = ({ moisture, light, temperature }: PlantMetricsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Moisture Card */}
@@ -68,7 +68,7 @@ const PlantMetrics = ({ moisture, light, temperature = 22 }: PlantMetricsProps) 
             <span className="text-lg font-bold text-red-600">{temperature}°C</span>
           </div>
           <Progress 
-            value={((temperature - 10) / 30) * 100} 
+            value={((temperature + 50) / 150) * 100} 
             className="h-2" 
           />
         </div>
@@ -78,4 +78,3 @@ const PlantMetrics = ({ moisture, light, temperature = 22 }: PlantMetricsProps) 
 };
 
 export default PlantMetrics;
-

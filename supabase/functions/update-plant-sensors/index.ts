@@ -8,33 +8,27 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // Only allow POST requests
     if (req.method !== 'POST') {
       throw new Error('Method not allowed')
     }
 
-    // Get the request body
     const body = await req.json()
     const { plant_id, moisture, light, temperature } = body
 
-    // Validate required fields
     if (!plant_id) {
       throw new Error('plant_id is required')
     }
 
-    // Create Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Prepare update data
     const updateData: any = {}
     if (typeof moisture === 'number' && moisture >= 0 && moisture <= 100) {
       updateData.moisture = moisture
@@ -46,7 +40,6 @@ serve(async (req) => {
       updateData.temperature = temperature
     }
 
-    // Update the plant
     const { data, error } = await supabaseClient
       .from('plants')
       .update(updateData)
@@ -56,7 +49,6 @@ serve(async (req) => {
 
     if (error) throw error
 
-    // Return the updated plant data
     return new Response(
       JSON.stringify({ message: 'Plant updated successfully', data }),
       {

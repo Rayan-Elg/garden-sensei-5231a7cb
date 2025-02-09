@@ -6,6 +6,7 @@ export interface Plant {
   species: string;
   moisture: number;
   light: number;
+  temperature: number;
   last_watered: string;
   image: string;
   description: string;
@@ -17,7 +18,6 @@ export interface Plant {
   care_temperature?: string;
   care_fertilizer?: string;
   care_warnings?: string;
-  temperature?: number;
 }
 
 export interface PlantSensorData {

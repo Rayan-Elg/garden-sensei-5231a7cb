@@ -1,10 +1,10 @@
-
 create table public.plants (
     id uuid default gen_random_uuid() primary key,
     name text not null,
     species text,
     moisture integer,
     light integer,
+    temperature integer,
     last_watered timestamp with time zone,
     image text,
     description text,
