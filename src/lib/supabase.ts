@@ -4,24 +4,15 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = supabaseUrl && supabaseKey ? 
-  createClient(supabaseUrl, supabaseKey, {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false,
-      flowType: 'pkce',
-      storage: window.localStorage
-    }
-  }) : 
-  null;
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false
+  }
+});
 
 export const checkSupabaseConnection = async () => {
-  if (!supabase) {
-    console.error('Supabase client not initialized - missing credentials');
-    return false;
-  }
-
   try {
     const { error } = await supabase.auth.getSession();
     if (error) {
