@@ -12,11 +12,22 @@ import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+interface CareGuide {
+  water: string;
+  humidity: string;
+  light: string;
+  soil: string;
+  temperature: string;
+  fertilizer: string;
+  warnings: string;
+}
+
 const AddPlant = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [careGuide, setCareGuide] = useState<CareGuide | null>(null);
   const [formData, setFormData] = useState<Omit<Plant, 'id'>>({
     name: '',
     species: '',
@@ -33,13 +44,19 @@ const AddPlant = () => {
     setFormData(prev => ({ ...prev, image: imagePreview }));
   };
 
-  const handleIdentifySuccess = (result: { name: string; species: string; description: string }) => {
+  const handleIdentifySuccess = (result: { 
+    name: string; 
+    species: string; 
+    description: string;
+    careGuide: CareGuide;
+  }) => {
     setFormData(prev => ({
       ...prev,
       name: result.name,
       species: result.species,
       description: result.description
     }));
+    setCareGuide(result.careGuide);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -116,6 +133,7 @@ const AddPlant = () => {
               loading={loading}
               onInputChange={handleInputChange}
               onSubmit={handleSubmit}
+              careGuide={careGuide || undefined}
             />
           </div>
         </Card>
