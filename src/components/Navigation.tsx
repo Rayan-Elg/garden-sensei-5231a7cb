@@ -68,10 +68,6 @@ const Navigation = () => {
               <Award className="w-4 h-4 text-green-600" />
               <span className="text-sm text-green-700">PolyHacks 2025</span>
             </div>
-            <div className="hidden md:flex items-center gap-2 bg-blue-50 py-1 px-3 rounded-full">
-              <plant className="w-4 h-4 text-blue-600" />
-              <span className="text-sm text-blue-700">Sur la terre</span>
-            </div>
             <NotificationPanel />
             <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="w-5 h-5" />
@@ -81,9 +77,6 @@ const Navigation = () => {
         <div className="md:hidden flex gap-2 mt-2 justify-center text-xs">
           <span className="bg-green-50 py-1 px-2 rounded-full text-green-700 flex items-center gap-1">
             <Award className="w-3 h-3" /> PolyHacks 2025
-          </span>
-          <span className="bg-blue-50 py-1 px-2 rounded-full text-blue-700 flex items-center gap-1">
-            <plant className="w-3 h-3" /> Sur la terre
           </span>
         </div>
       </div>
