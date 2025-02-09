@@ -1,17 +1,17 @@
+
 import Navigation from "@/components/Navigation";
 import { useToast } from "@/hooks/use-toast";
 import type { Plant } from "@/lib/api/plants";
 import { deletePlant, getPlantById, updatePlantImage, updatePlantCareInfo } from "@/lib/api/plants";
 import { identifyPlant } from "@/lib/api/plant-identification";
-import { sendSMS } from "@/services/smsService";
-import { ArrowLeft, Bell, ChevronDown, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Bell, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SMSNotificationDialog from "@/components/plant/SMSNotificationDialog";
 import PlantDetailImage from "@/components/plant/PlantDetailImage";
 import PlantInfo from "@/components/plant/PlantInfo";
 import PlantMetrics from "@/components/plant/PlantMetrics";
-import { Card } from "@/components/ui/card";
+import PlantCareGuide from "@/components/plant/PlantCareGuide";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -24,11 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { useMoistureMonitor } from "@/hooks/use-moisture-monitor";
 
 const PlantDetail = () => {
   const { id } = useParams();
@@ -39,42 +35,8 @@ const PlantDetail = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCareGuideOpen, setIsCareGuideOpen] = useState(false);
   const [isUpdatingCare, setIsUpdatingCare] = useState(false);
-  const [lastNotificationSent, setLastNotificationSent] = useState<Date | null>(null);
 
-  const checkMoistureLevel = async (plant: Plant) => {
-    const humidityText = plant.care_humidity || '';
-    const humidityMatch = humidityText.match(/(\d+)%/);
-    const requiredHumidity = humidityMatch ? parseInt(humidityMatch[1]) : null;
-
-    if (!requiredHumidity) return;
-
-    const currentTime = new Date();
-    const notificationCooldown = 3600000; // 1 hour in milliseconds
-
-    if (plant.moisture < requiredHumidity && 
-        (!lastNotificationSent || (currentTime.getTime() - lastNotificationSent.getTime() > notificationCooldown))) {
-      
-      try {
-        const phoneNumber = localStorage.getItem(`plant-${plant.id}-phone`);
-        if (!phoneNumber) return;
-
-        const response = await sendSMS(
-          phoneNumber,
-          `Your plant ${plant.name} needs watering! Current moisture level (${plant.moisture}%) is below the recommended level of ${requiredHumidity}%.`
-        );
-
-        if (response.success) {
-          setLastNotificationSent(currentTime);
-          toast({
-            title: "Notification Sent",
-            description: `SMS notification sent. Remaining quota: ${response.quotaRemaining}`,
-          });
-        }
-      } catch (error) {
-        console.error('Error sending moisture alert:', error);
-      }
-    }
-  };
+  const { checkMoistureLevel } = useMoistureMonitor(plant);
 
   useEffect(() => {
     if (id) {
@@ -96,13 +58,7 @@ const PlantDetail = () => {
           setLoading(false);
         });
     }
-  }, [id, toast]);
-
-  useEffect(() => {
-    if (plant) {
-      checkMoistureLevel(plant);
-    }
-  }, [plant?.moisture]);
+  }, [id, toast, checkMoistureLevel]);
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -294,82 +250,14 @@ const PlantDetail = () => {
               light={plant.light}
             />
 
-            {needsCareUpdate && (
-              <div className="flex justify-center">
-                <Button
-                  onClick={updateCareInfo}
-                  disabled={isUpdatingCare}
-                  className="w-full sm:w-auto"
-                >
-                  {isUpdatingCare && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Get Care Information
-                </Button>
-              </div>
-            )}
-
-            <Collapsible open={isCareGuideOpen} onOpenChange={setIsCareGuideOpen}>
-              <CollapsibleTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full flex items-center justify-between"
-                >
-                  <span>Plant Care Information</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCareGuideOpen ? 'rotate-180' : ''}`} />
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-4 mt-4">
-                {plant.care_water && (
-                  <Card className="p-4">
-                    <h3 className="font-semibold mb-2">Watering Schedule</h3>
-                    <p className="text-gray-600">{plant.care_water}</p>
-                  </Card>
-                )}
-                
-                {plant.care_humidity && (
-                  <Card className="p-4">
-                    <h3 className="font-semibold mb-2">Humidity Requirements</h3>
-                    <p className="text-gray-600">{plant.care_humidity}</p>
-                  </Card>
-                )}
-                
-                {plant.care_light && (
-                  <Card className="p-4">
-                    <h3 className="font-semibold mb-2">Light Requirements</h3>
-                    <p className="text-gray-600">{plant.care_light}</p>
-                  </Card>
-                )}
-                
-                {plant.care_soil && (
-                  <Card className="p-4">
-                    <h3 className="font-semibold mb-2">Soil Type</h3>
-                    <p className="text-gray-600">{plant.care_soil}</p>
-                  </Card>
-                )}
-                
-                {plant.care_temperature && (
-                  <Card className="p-4">
-                    <h3 className="font-semibold mb-2">Temperature Range</h3>
-                    <p className="text-gray-600">{plant.care_temperature}</p>
-                  </Card>
-                )}
-                
-                {plant.care_fertilizer && (
-                  <Card className="p-4">
-                    <h3 className="font-semibold mb-2">Fertilization</h3>
-                    <p className="text-gray-600">{plant.care_fertilizer}</p>
-                  </Card>
-                )}
-                
-                {plant.care_warnings && (
-                  <Card className="p-4">
-                    <h3 className="font-semibold mb-2">Care Warnings</h3>
-                    <p className="text-gray-600">{plant.care_warnings}</p>
-                  </Card>
-                )}
-              </CollapsibleContent>
-            </Collapsible>
+            <PlantCareGuide
+              plant={plant}
+              isCareGuideOpen={isCareGuideOpen}
+              setIsCareGuideOpen={setIsCareGuideOpen}
+              isUpdatingCare={isUpdatingCare}
+              onUpdateCare={updateCareInfo}
+              needsCareUpdate={needsCareUpdate}
+            />
           </div>
         </div>
 
