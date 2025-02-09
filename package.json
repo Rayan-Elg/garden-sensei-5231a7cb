@@ -1,7 +1,8 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "smartgarden-manager",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "A sustainable smart gardening solution for endangered species protection and precision agriculture. PolyHacks 2025 submission - Sur la terre category.",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -83,5 +84,35 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1"
+  },
+  "author": "PolyHacks 2025 Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/smartgarden-manager.git"
+  },
+  "keywords": [
+    "polyhacks-2025",
+    "sustainable-agriculture",
+    "endangered-species",
+    "precision-farming",
+    "plant-care",
+    "garden-management",
+    "biodiversity",
+    "environmental-protection",
+    "react",
+    "typescript",
+    "supabase",
+    "ai",
+    "plant-identification"
+  ],
+  "hackathon": {
+    "event": "PolyHacks 2025",
+    "category": "Sur la terre - Above ground",
+    "focus": [
+      "Endangered Species Protection",
+      "Precision Farming",
+      "Sustainable Development"
+    ]
   }
 }

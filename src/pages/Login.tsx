@@ -5,7 +5,7 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { useQuery } from '@tanstack/react-query';
-import { Leaf, Loader2 } from 'lucide-react';
+import { Droplet, Leaf, Loader2, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
@@ -100,11 +100,32 @@ const Login = () => {
           </div>
         )}
 
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Leaf className="w-8 h-8 text-primary-600" />
+        <div className="flex flex-col items-center gap-2 mb-8">
+          <div className="bg-primary-50 p-3 rounded-full">
+            <Leaf className="w-12 h-12 text-primary-600" />
+          </div>
           <h1 className="text-2xl font-semibold text-center">SmartGarden Manager</h1>
+          <p className="text-center text-gray-600 max-w-xs">
+            Sustainable gardening for a greener future. 
+            <span className="block text-sm text-primary-600 mt-1">PolyHacks 2025 Edition</span>
+          </p>
+          
+          <div className="flex gap-4 mt-4">
+            <div className="flex flex-col items-center text-sm text-gray-600">
+              <Droplet className="w-5 h-5 text-blue-500 mb-1" />
+              <span>Water Smart</span>
+            </div>
+            <div className="flex flex-col items-center text-sm text-gray-600">
+              <Leaf className="w-5 h-5 text-green-500 mb-1" />
+              <span>Eco-Friendly</span>
+            </div>
+            <div className="flex flex-col items-center text-sm text-gray-600">
+              <Sun className="w-5 h-5 text-yellow-500 mb-1" />
+              <span>AI-Powered</span>
+            </div>
+          </div>
         </div>
-        {/* <p className="text-center text-gray-500 mb-6">Sign in to your account to continue</p> */}
+
         {supabase && (
           <Auth
             supabaseClient={supabase}
@@ -156,14 +177,14 @@ const Login = () => {
                   loading_button_label: 'Signing in...',
                   email_input_placeholder: 'Enter your email',
                   password_input_placeholder: 'Enter your password',
-                  link_text: "Already have an account? Sign in"
+                  link_text: "New user? Create an account"
                 },
                 sign_up: {
                   email_label: 'Email',
                   password_label: 'Password',
                   button_label: 'Create account',
                   loading_button_label: 'Creating your account...',
-                  link_text: 'New here? Create an account',
+                  link_text: 'Already have an account? Sign in',
                   email_input_placeholder: 'Enter your email',
                   password_input_placeholder: 'Create a password'
                 },
@@ -179,6 +200,10 @@ const Login = () => {
             view={isLoggingIn ? 'sign_in' : undefined}
           />
         )}
+
+        <p className="text-xs text-center text-gray-500 mt-6">
+          Join us in protecting biodiversity and promoting sustainable urban gardening
+        </p>
       </Card>
     </div>
   );
