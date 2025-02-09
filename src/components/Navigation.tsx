@@ -1,8 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
-import { Award, Leaf, LogOut, Plant } from "lucide-react";
+import { Award, Leaf, LogOut, plant } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { NotificationPanel } from "./NotificationPanel";
 
@@ -69,7 +70,7 @@ const Navigation = () => {
               <span className="text-sm text-green-700">PolyHacks 2025</span>
             </div>
             <div className="hidden md:flex items-center gap-2 bg-blue-50 py-1 px-3 rounded-full">
-              <Plant className="w-4 h-4 text-blue-600" />
+              <plant className="w-4 h-4 text-blue-600" />
               <span className="text-sm text-blue-700">Sur la terre</span>
             </div>
             <NotificationPanel />
@@ -83,7 +84,7 @@ const Navigation = () => {
             <Award className="w-3 h-3" /> PolyHacks 2025
           </span>
           <span className="bg-blue-50 py-1 px-2 rounded-full text-blue-700 flex items-center gap-1">
-            <Plant className="w-3 h-3" /> Sur la terre
+            <plant className="w-3 h-3" /> Sur la terre
           </span>
         </div>
       </div>
@@ -92,3 +93,4 @@ const Navigation = () => {
 };
 
 export default Navigation;
+
