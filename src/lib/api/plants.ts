@@ -1,3 +1,4 @@
+
 import { checkSupabaseConnection, supabase } from '../supabase';
 
 export interface Plant {
@@ -17,6 +18,7 @@ export interface Plant {
   care_temperature?: string;
   care_fertilizer?: string;
   care_warnings?: string;
+  temperature?: number;
 }
 
 export interface PlantSensorData {
@@ -235,6 +237,9 @@ export const updatePlantSensorData = async (id: string, sensorData: PlantSensorD
   const updateData: any = {};
   if (typeof sensorData.moisture === 'number') updateData.moisture = sensorData.moisture;
   if (typeof sensorData.light === 'number') updateData.light = sensorData.light;
+  if (typeof sensorData.temperature === 'number') updateData.temperature = sensorData.temperature;
+
+  console.log('Updating plant sensor data:', { id, updateData });
 
   const { data, error } = await supabase
     .from('plants')
