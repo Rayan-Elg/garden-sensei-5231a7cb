@@ -134,7 +134,7 @@ const PlantDetail = () => {
               onClick={() => setIsDialogOpen(true)}
             >
               <Bell className="w-4 h-4" />
-              Activer les notifications SMS
+              Get Watering Notifications
             </Button>
 
             <AlertDialog>

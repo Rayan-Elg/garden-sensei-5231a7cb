@@ -73,15 +73,15 @@ const SMSNotificationDialog = ({ isOpen, onOpenChange, plantName }: SMSNotificat
       <DialogContent>
         <form onSubmit={handlePhoneNumberSubmit}>
           <DialogHeader>
-            <DialogTitle>Configurer les notifications SMS</DialogTitle>
+            <DialogTitle>Set Up Watering Notifications</DialogTitle>
             <DialogDescription>
-              Entrez votre numéro de téléphone pour recevoir des notifications concernant {plantName}.
+              Enter your phone number to receive notifications when {plantName} needs to be watered.
             </DialogDescription>
           </DialogHeader>
           <div className="py-6">
             <Input
               type="tel"
-              placeholder="Entrez votre numéro de téléphone (10 chiffres)"
+              placeholder="Enter your phone number (10 digits)"
               value={phoneNumber}
               onChange={(e) => {
                 setPhoneNumber(e.target.value);
@@ -96,7 +96,7 @@ const SMSNotificationDialog = ({ isOpen, onOpenChange, plantName }: SMSNotificat
           </div>
           <DialogFooter>
             <Button type="submit" disabled={isSending}>
-              {isSending ? "Configuration en cours..." : "Activer les notifications"}
+              {isSending ? "Setting up notifications..." : "Enable Watering Alerts"}
             </Button>
           </DialogFooter>
         </form>
