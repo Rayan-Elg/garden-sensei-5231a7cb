@@ -10,15 +10,21 @@ interface SendSMSResponse {
 
 export const sendSMS = async (phoneNumber: string, message: string): Promise<SendSMSResponse> => {
   try {
+    if (!supabase) {
+      throw new Error('Supabase client is not initialized');
+    }
+
     console.log('Sending SMS via Supabase function to:', phoneNumber);
     
-    // Make sure phoneNumber is in the correct format (remove any non-digits)
     const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
     
     const { data, error } = await supabase.functions.invoke('send-sms', {
       body: {
         phoneNumber: cleanPhoneNumber,
         message
+      },
+      headers: {
+        'Content-Type': 'application/json'
       }
     });
 

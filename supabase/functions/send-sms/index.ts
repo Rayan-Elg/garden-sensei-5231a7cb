@@ -4,16 +4,20 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 const TEXTBELT_API_KEY = "39bbdf476046aa16d8749550512216f1e2b393090aXdzG5eyrvQO3dTIT1YLH31l"
 
 serve(async (req) => {
-  // Add CORS headers
+  // Updated CORS headers with specific origin
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': '*', // In production, replace with your specific domain
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Headers': '*',
+    'Content-Type': 'application/json'
   }
 
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers })
+    return new Response(null, {
+      status: 204, // Use 204 for preflight success
+      headers
+    })
   }
 
   try {
@@ -41,12 +45,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify(data),
-      { 
-        headers: { 
-          ...headers,
-          'Content-Type': 'application/json' 
-        } 
-      }
+      { headers }
     )
   } catch (error) {
     console.error('Send SMS Error:', error)
@@ -57,10 +56,7 @@ serve(async (req) => {
       }),
       { 
         status: 500,
-        headers: { 
-          ...headers,
-          'Content-Type': 'application/json' 
-        }
+        headers
       }
     )
   }
