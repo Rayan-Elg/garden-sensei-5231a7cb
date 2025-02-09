@@ -1,3 +1,4 @@
+
 -- Drop existing objects first
 drop policy if exists "Allow public access" on public.plants;
 drop policy if exists "Users can view own plants" on public.plants;
@@ -32,6 +33,7 @@ create table public.plants (
     species text,
     moisture integer,
     light integer,
+    temperature integer,
     last_watered timestamp with time zone,
     image text,
     description text,
