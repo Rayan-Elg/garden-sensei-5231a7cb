@@ -132,21 +132,22 @@ const PlantDetail = () => {
       });
 
       const data = await response.json();
+      console.log('SMS API Response:', data); // For debugging
       
-      if (data.success) {
+      if (data.success && data.textId) {
         setIsDialogOpen(false);
         toast({
           title: "Success",
-          description: "SMS notifications have been set up successfully.",
+          description: `SMS notifications have been set up successfully. Remaining quota: ${data.quotaRemaining}`,
         });
       } else {
         throw new Error(data.error || 'Failed to send SMS');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending SMS:', error);
       toast({
         title: "Error",
-        description: "Failed to set up SMS notifications. Please try again.",
+        description: error.message || "Failed to set up SMS notifications. Please try again.",
         variant: "destructive"
       });
     } finally {
