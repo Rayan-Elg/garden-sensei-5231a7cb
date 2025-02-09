@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import PlantForm from "@/components/plant/PlantForm";
 import PlantImageUpload from "@/components/plant/PlantImageUpload";
@@ -33,10 +34,11 @@ const AddPlant = () => {
     species: '',
     moisture: 50,
     light: 50,
+    temperature: 22, // Added default temperature
     last_watered: new Date().toISOString(),
     image: '',
     description: '',
-    user_id: '', // This will be set with the actual user_id before creating the plant
+    user_id: '',
     care_water: '',
     care_humidity: '',
     care_light: '',
