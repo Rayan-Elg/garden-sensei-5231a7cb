@@ -7,10 +7,10 @@
 
 class LEDController {
 public:
-    LEDController(int pinRed, int pinYellow, int pinGreen);
+    LEDController(int pinRed, int pinGreen);
     void begin();
     void setLED(int pin);
-    int pinRed, pinYellow, pinGreen;
+    int pinRed, pinGreen;
 };
 
 #endif

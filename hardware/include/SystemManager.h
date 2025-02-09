@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef SYSTEM_MANAGER_H
 #define SYSTEM_MANAGER_H
 
@@ -12,7 +14,6 @@ public:
     void begin();
     void run();
     static void handleButtonPress();
-
 private:
     SensorManager& sensors;
     LEDController& leds;
@@ -23,7 +24,7 @@ private:
     static int buttonPin;
     unsigned long lastDataCollection;
     unsigned long lastDataSend;
-    void updateLEDStatus(float soilMoisture, float temperature);
+    void updateLEDStatus(float soilMoisture, float temperature, float lightLevel);
 };
 
 #endif

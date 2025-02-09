@@ -4,6 +4,7 @@
 #define SENSOR_MANAGER_H
 
 #include <Arduino.h>
+#include "DHT.h"
 
 class SensorManager {
 public:
@@ -12,7 +13,10 @@ public:
     float readTemperature();
     float readSoilMoisture();
     float readLightLevel();
+
+private:
     int soilMoisturePin, lightSensorPin, tempSensorPin;
+    DHT dht;
 };
 
 #endif

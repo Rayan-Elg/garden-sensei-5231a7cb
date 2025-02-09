@@ -1,27 +1,44 @@
 #include "SensorManager.h"
 
 SensorManager::SensorManager(int soilPin, int lightPin, int tempPin) 
-    : soilMoisturePin(soilPin), lightSensorPin(lightPin), tempSensorPin(tempPin) {}
+    : soilMoisturePin(soilPin), lightSensorPin(lightPin), tempSensorPin(tempPin), dht(tempPin, DHT11) {}
 
 void SensorManager::begin() {
     pinMode(soilMoisturePin, INPUT);
     pinMode(lightSensorPin, INPUT);
     pinMode(tempSensorPin, INPUT);
+    dht.begin();
+    delay(2000);
 }
 
 float SensorManager::readTemperature() {
-    int rawValue = analogRead(tempSensorPin);
-    float voltage = (rawValue / 1023.0) * 5.0;
-    return (voltage - 0.5) * 100.0;
+    Serial.println("Lecture température DHT11...");
+    float temp = dht.readTemperature();
+    
+    if (isnan(temp)) {
+        Serial.println("❌ Erreur de lecture du capteur DHT11 !");
+        return -1;
+    }
+
+    Serial.print("✅ Température lue : ");
+    Serial.print(temp);
+    Serial.println(" °C");
+    
+    return temp;
 }
+
 
 float SensorManager::readSoilMoisture() {
     int rawValue = analogRead(soilMoisturePin);
-    return 100.0 - ((rawValue / 1023.0) * 100.0);
+    Serial.print("Raw Soil Moisture Value: ");
+    Serial.println(rawValue);
+    return (rawValue / 1023.0) * 100.0; 
 }
+
 
 float SensorManager::readLightLevel() {
     int rawValue = analogRead(lightSensorPin);
-    float voltage = (rawValue / 1023.0) * 5.0;
-    return voltage * 500.0;
+    Serial.print("Raw Light Sensor Value: ");
+    Serial.println(rawValue);
+    return rawValue;
 }

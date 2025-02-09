@@ -9,11 +9,13 @@ class ButtonController {
 public:
     ButtonController(int pin);
     void begin();
-    bool isPressed();
+    bool wasPressed();
     int getPin();
 
 private:
     int buttonPin;
+    static volatile bool buttonPressed;
+    static void handleInterrupt();
 };
 
 #endif
