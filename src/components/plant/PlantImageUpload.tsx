@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { identifyPlant } from "@/lib/api/plant-identification";
-import { Camera, Leaf, Loader2, Upload, Wand2, X } from "lucide-react";
+import { Camera, Loader2, Upload, X } from "lucide-react";
 import { useState } from "react";
 
 interface PlantImageUploadProps {
@@ -16,52 +16,13 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
   const [identifying, setIdentifying] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [hasIdentified, setHasIdentified] = useState(false);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Invalid File Type",
-          description: "Please upload an image file (JPG, PNG, etc.)",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "File Too Large",
-          description: "Please upload an image smaller than 5MB",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const preview = reader.result as string;
-        setImagePreview(preview);
-        onImageChange(file, preview);
-      };
-      reader.readAsDataURL(file);
-      setHasIdentified(false);
-    }
-  };
-
-  const handleIdentifyPlant = async () => {
-    if (!imageFile) return;
-    
+  const handleIdentifyPlant = async (file: File) => {
     setIdentifying(true);
     try {
-      const result = await identifyPlant(imageFile);
+      const result = await identifyPlant(file);
       if (result) {
         onIdentifySuccess(result);
-        setHasIdentified(true);
 
         const confidencePercent = Math.round(result.confidence * 100);
         const confidenceEmoji = confidencePercent >= 90 ? '🎯' : 
@@ -101,59 +62,47 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
     }
   };
 
-  return (
-    <div className="space-y-2">
-      <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-primary transition-colors">
-        {imagePreview ? (
-          <div className="relative w-full">
-            <img 
-              src={imagePreview} 
-              alt="Preview" 
-              className="w-full aspect-video object-cover rounded-lg"
-            />
-            <div className="absolute bottom-2 right-2 flex gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  setImagePreview(null);
-                  setImageFile(null);
-                  setHasIdentified(false);
-                  onImageChange(null as any, '');
-                }}
-              >
-                <X className="w-4 h-4 mr-2" />
-                Remove
-              </Button>
-              <Button
-                type="button"
-                variant="default"
-                size="sm"
-                disabled={identifying || !imageFile}
-                onClick={handleIdentifyPlant}
-                className="min-w-[140px]"
-              >
-                {identifying ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Identifying...
-                  </>
-                ) : hasIdentified ? (
-                  <>
-                    <Leaf className="w-4 h-4 mr-2 text-green-500" />
-                    Re-identify
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="w-4 h-4 mr-2" />
-                    Identify Plant
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        ) : (
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload an image file (JPG, PNG, etc.)",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please upload an image smaller than 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const preview = reader.result as string;
+        setImagePreview(preview);
+        onImageChange(file, preview);
+      };
+      reader.readAsDataURL(file);
+
+      // Automatically start identification process
+      await handleIdentifyPlant(file);
+    }
+  };
+
+  if (!imagePreview) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-8 hover:border-primary transition-colors">
           <label className="w-full cursor-pointer">
             <Input 
               type="file" 
@@ -161,12 +110,12 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
               className="hidden"
               onChange={handleImageChange}
             />
-            <div className="flex flex-col items-center gap-4 p-8">
+            <div className="flex flex-col items-center gap-4">
               <Camera className="w-12 h-12 text-gray-400" />
               <div className="text-center space-y-2">
-                <h3 className="font-semibold text-lg">Upload a Plant Photo</h3>
+                <h3 className="font-semibold text-lg">Add a Plant Photo</h3>
                 <p className="text-sm text-muted-foreground">
-                  Take or upload a photo of your plant to get started. Our AI will help identify it!
+                  Take or upload a photo and we'll help identify your plant
                 </p>
                 <Button variant="secondary" className="mt-4">
                   <Upload className="w-4 h-4 mr-2" />
@@ -178,10 +127,9 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
               </p>
             </div>
           </label>
-        )}
-      </div>
-      {!imagePreview && (
-        <div className="text-center mt-4">
+        </div>
+        
+        <div className="text-center">
           <Button
             variant="ghost"
             type="button"
@@ -196,7 +144,41 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
             Skip photo and add plant manually
           </Button>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="relative w-full">
+        {identifying && (
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
+            <div className="text-white text-center">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
+              <p>Identifying your plant...</p>
+            </div>
+          </div>
+        )}
+        <img 
+          src={imagePreview} 
+          alt="Preview" 
+          className="w-full aspect-video object-cover rounded-lg"
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          className="absolute bottom-2 right-2"
+          onClick={() => {
+            setImagePreview(null);
+            setImageFile(null);
+            onImageChange(null as any, '');
+          }}
+        >
+          <X className="w-4 h-4 mr-2" />
+          Remove Photo
+        </Button>
+      </div>
     </div>
   );
 };
