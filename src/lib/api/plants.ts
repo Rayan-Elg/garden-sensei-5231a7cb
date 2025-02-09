@@ -1,4 +1,3 @@
-
 import { checkSupabaseConnection, supabase } from '../supabase';
 
 export interface Plant {
@@ -185,4 +184,21 @@ export const deletePlant = async (id: string): Promise<void> => {
     .eq('id', id);
 
   if (error) throw error;
+};
+
+export const updatePlantCareInfo = async (id: string, careInfo: Partial<Plant>): Promise<Plant> => {
+  const isConnected = await checkSupabaseConnection();
+  if (!isConnected) {
+    throw new Error('Unable to connect to Supabase');
+  }
+
+  const { data, error } = await supabase
+    .from('plants')
+    .update(careInfo)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 };

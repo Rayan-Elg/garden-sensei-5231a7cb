@@ -1,5 +1,17 @@
-
 import Navigation from "@/components/Navigation";
+import { useToast } from "@/hooks/use-toast";
+import type { Plant } from "@/lib/api/plants";
+import { deletePlant, getPlantById, updatePlantImage, updatePlantCareInfo } from "@/lib/api/plants";
+import { identifyPlant } from "@/lib/api/plant-identification";
+import { ArrowLeft, Bell, ChevronDown, Loader2, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import SMSNotificationDialog from "@/components/plant/SMSNotificationDialog";
+import PlantDetailImage from "@/components/plant/PlantDetailImage";
+import PlantInfo from "@/components/plant/PlantInfo";
+import PlantMetrics from "@/components/plant/PlantMetrics";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,18 +23,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import type { Plant } from "@/lib/api/plants";
-import { deletePlant, getPlantById, updatePlantImage } from "@/lib/api/plants";
-import { ArrowLeft, Bell, ChevronDown, Trash2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import SMSNotificationDialog from "@/components/plant/SMSNotificationDialog";
-import PlantDetailImage from "@/components/plant/PlantDetailImage";
-import PlantInfo from "@/components/plant/PlantInfo";
-import PlantMetrics from "@/components/plant/PlantMetrics";
-import { Card } from "@/components/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
@@ -37,6 +37,7 @@ const PlantDetail = () => {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCareGuideOpen, setIsCareGuideOpen] = useState(false);
+  const [isUpdatingCare, setIsUpdatingCare] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -97,6 +98,43 @@ const PlantDetail = () => {
     }
   };
 
+  const updateCareInfo = async () => {
+    if (!plant?.image || !id) return;
+
+    setIsUpdatingCare(true);
+    try {
+      const identification = await identifyPlant(await fetch(plant.image).then(r => r.blob()));
+      if (!identification) {
+        throw new Error("Could not identify plant");
+      }
+
+      const updatedPlant = await updatePlantCareInfo(id, {
+        care_water: identification.careGuide.water,
+        care_humidity: identification.careGuide.humidity,
+        care_light: identification.careGuide.light,
+        care_soil: identification.careGuide.soil,
+        care_temperature: identification.careGuide.temperature,
+        care_fertilizer: identification.careGuide.fertilizer,
+        care_warnings: identification.careGuide.warnings,
+      });
+
+      setPlant(updatedPlant);
+      toast({
+        title: "Success",
+        description: "Plant care information has been updated.",
+      });
+    } catch (error) {
+      console.error('Error updating care info:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update plant care information.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUpdatingCare(false);
+    }
+  };
+
   const hasCareGuide = plant && (
     plant.care_water ||
     plant.care_humidity ||
@@ -106,6 +144,8 @@ const PlantDetail = () => {
     plant.care_fertilizer ||
     plant.care_warnings
   );
+
+  const needsCareUpdate = plant && !hasCareGuide;
 
   if (loading) {
     return (
@@ -198,69 +238,82 @@ const PlantDetail = () => {
               light={plant.light}
             />
 
-            {hasCareGuide && (
-              <Collapsible open={isCareGuideOpen} onOpenChange={setIsCareGuideOpen}>
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full flex items-center justify-between"
-                  >
-                    <span>Plant Care Information</span>
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCareGuideOpen ? 'rotate-180' : ''}`} />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-4 mt-4">
-                  {plant.care_water && (
-                    <Card className="p-4">
-                      <h3 className="font-semibold mb-2">Watering Schedule</h3>
-                      <p className="text-gray-600">{plant.care_water}</p>
-                    </Card>
+            {needsCareUpdate && (
+              <div className="flex justify-center">
+                <Button
+                  onClick={updateCareInfo}
+                  disabled={isUpdatingCare}
+                  className="w-full sm:w-auto"
+                >
+                  {isUpdatingCare && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  
-                  {plant.care_humidity && (
-                    <Card className="p-4">
-                      <h3 className="font-semibold mb-2">Humidity Requirements</h3>
-                      <p className="text-gray-600">{plant.care_humidity}</p>
-                    </Card>
-                  )}
-                  
-                  {plant.care_light && (
-                    <Card className="p-4">
-                      <h3 className="font-semibold mb-2">Light Requirements</h3>
-                      <p className="text-gray-600">{plant.care_light}</p>
-                    </Card>
-                  )}
-                  
-                  {plant.care_soil && (
-                    <Card className="p-4">
-                      <h3 className="font-semibold mb-2">Soil Type</h3>
-                      <p className="text-gray-600">{plant.care_soil}</p>
-                    </Card>
-                  )}
-                  
-                  {plant.care_temperature && (
-                    <Card className="p-4">
-                      <h3 className="font-semibold mb-2">Temperature Range</h3>
-                      <p className="text-gray-600">{plant.care_temperature}</p>
-                    </Card>
-                  )}
-                  
-                  {plant.care_fertilizer && (
-                    <Card className="p-4">
-                      <h3 className="font-semibold mb-2">Fertilization</h3>
-                      <p className="text-gray-600">{plant.care_fertilizer}</p>
-                    </Card>
-                  )}
-                  
-                  {plant.care_warnings && (
-                    <Card className="p-4">
-                      <h3 className="font-semibold mb-2">Care Warnings</h3>
-                      <p className="text-gray-600">{plant.care_warnings}</p>
-                    </Card>
-                  )}
-                </CollapsibleContent>
-              </Collapsible>
+                  Get Care Information
+                </Button>
+              </div>
             )}
+
+            <Collapsible open={isCareGuideOpen} onOpenChange={setIsCareGuideOpen}>
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-between"
+                >
+                  <span>Plant Care Information</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCareGuideOpen ? 'rotate-180' : ''}`} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 mt-4">
+                {plant.care_water && (
+                  <Card className="p-4">
+                    <h3 className="font-semibold mb-2">Watering Schedule</h3>
+                    <p className="text-gray-600">{plant.care_water}</p>
+                  </Card>
+                )}
+                
+                {plant.care_humidity && (
+                  <Card className="p-4">
+                    <h3 className="font-semibold mb-2">Humidity Requirements</h3>
+                    <p className="text-gray-600">{plant.care_humidity}</p>
+                  </Card>
+                )}
+                
+                {plant.care_light && (
+                  <Card className="p-4">
+                    <h3 className="font-semibold mb-2">Light Requirements</h3>
+                    <p className="text-gray-600">{plant.care_light}</p>
+                  </Card>
+                )}
+                
+                {plant.care_soil && (
+                  <Card className="p-4">
+                    <h3 className="font-semibold mb-2">Soil Type</h3>
+                    <p className="text-gray-600">{plant.care_soil}</p>
+                  </Card>
+                )}
+                
+                {plant.care_temperature && (
+                  <Card className="p-4">
+                    <h3 className="font-semibold mb-2">Temperature Range</h3>
+                    <p className="text-gray-600">{plant.care_temperature}</p>
+                  </Card>
+                )}
+                
+                {plant.care_fertilizer && (
+                  <Card className="p-4">
+                    <h3 className="font-semibold mb-2">Fertilization</h3>
+                    <p className="text-gray-600">{plant.care_fertilizer}</p>
+                  </Card>
+                )}
+                
+                {plant.care_warnings && (
+                  <Card className="p-4">
+                    <h3 className="font-semibold mb-2">Care Warnings</h3>
+                    <p className="text-gray-600">{plant.care_warnings}</p>
+                  </Card>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
           </div>
         </div>
 
@@ -275,4 +328,3 @@ const PlantDetail = () => {
 };
 
 export default PlantDetail;
-
