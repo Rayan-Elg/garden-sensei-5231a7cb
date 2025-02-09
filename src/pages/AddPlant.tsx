@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import PlantForm from "@/components/plant/PlantForm";
 import PlantImageUpload from "@/components/plant/PlantImageUpload";
@@ -16,14 +17,15 @@ const AddPlant = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Omit<Plant, 'id' | 'user_id'>>({
+  const [formData, setFormData] = useState<Omit<Plant, 'id'>>({
     name: '',
     species: '',
     moisture: 50,
     light: 50,
     last_watered: new Date().toISOString(),
     image: '',
-    description: ''
+    description: '',
+    user_id: '' // This will be set with the actual user_id before creating the plant
   });
 
   const handleImageChange = (imageFile: File, imagePreview: string) => {
@@ -61,7 +63,13 @@ const AddPlant = () => {
         throw new Error('Plant name is required');
       }
 
-      await createPlant(formData);
+      // Set the user_id before creating the plant
+      const plantData = {
+        ...formData,
+        user_id: session.user.id
+      };
+
+      await createPlant(plantData);
       toast({
         title: "Plant Added Successfully",
         description: "Your new plant has been added to your garden.",
@@ -117,3 +125,4 @@ const AddPlant = () => {
 };
 
 export default AddPlant;
+
