@@ -9,6 +9,17 @@ interface PlantInfoProps {
 }
 
 const PlantInfo = ({ name, species, description, lastWatered }: PlantInfoProps) => {
+  const getLastWateredText = () => {
+    if (!lastWatered) {
+      return "Never watered";
+    }
+    try {
+      return `Last watered: ${new Date(lastWatered).toLocaleDateString()}`;
+    } catch (error) {
+      return "Waiting for first watering";
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -20,10 +31,11 @@ const PlantInfo = ({ name, species, description, lastWatered }: PlantInfoProps) 
       
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <Sprout className="w-4 h-4" />
-        <span>Dernier arrosage: {new Date(lastWatered).toLocaleDateString()}</span>
+        <span>{getLastWateredText()}</span>
       </div>
     </div>
   );
 };
 
 export default PlantInfo;
+
