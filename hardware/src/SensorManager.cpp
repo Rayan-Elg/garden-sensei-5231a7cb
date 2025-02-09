@@ -12,7 +12,6 @@ void SensorManager::begin() {
 }
 
 float SensorManager::readTemperature() {
-    Serial.println("🌡️ Lecture température DHT11...");
     float temp = dht.readTemperature();
     
     if (isnan(temp) || temp < -10.0 || temp > 60.0) {
