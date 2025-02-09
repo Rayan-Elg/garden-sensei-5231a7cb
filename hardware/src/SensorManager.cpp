@@ -12,33 +12,41 @@ void SensorManager::begin() {
 }
 
 float SensorManager::readTemperature() {
-    Serial.println("Lecture température DHT11...");
+    Serial.println("🌡️ Lecture température DHT11...");
     float temp = dht.readTemperature();
     
-    if (isnan(temp)) {
-        Serial.println("❌ Erreur de lecture du capteur DHT11 !");
+    if (isnan(temp) || temp < -10.0 || temp > 60.0) {
+        Serial.println("❌ Erreur de lecture !");
         return -1;
     }
 
-    Serial.print("✅ Température lue : ");
+    Serial.print("✅ Température : ");
     Serial.print(temp);
     Serial.println(" °C");
     
     return temp;
 }
 
-
 float SensorManager::readSoilMoisture() {
-    int rawValue = analogRead(soilMoisturePin);
-    Serial.print("Raw Soil Moisture Value: ");
-    Serial.println(rawValue);
-    return (rawValue / 1023.0) * 100.0; 
+    float moisture = 100.0 - ((analogRead(soilMoisturePin) / 1023.0) * 100.0);
+    moisture = constrain(moisture, 0.0, 100.0);
+
+    Serial.print("💧 Humidité du sol : ");
+    Serial.print(moisture);
+    Serial.println(" %");
+
+    return moisture;
 }
 
-
 float SensorManager::readLightLevel() {
-    int rawValue = analogRead(lightSensorPin);
-    Serial.print("Raw Light Sensor Value: ");
-    Serial.println(rawValue);
-    return rawValue;
+    float rawValue = analogRead(lightSensorPin);
+    float lux = (1 - (rawValue / 1023.0)) * 100.0;
+    lux = constrain(lux, 0.0, 100.0);
+
+    Serial.print("🔆 Lumière : ");
+    Serial.print(lux);
+    Serial.println(" %");
+    Serial.println("-----------------------------");
+
+    return lux;
 }

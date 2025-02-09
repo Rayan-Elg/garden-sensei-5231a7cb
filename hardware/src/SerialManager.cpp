@@ -11,9 +11,12 @@ void SerialManager::begin(unsigned long baudRate) {
 void SerialManager::sendData(float temperature, int soilMoisture, int lightLevel) {
     if (!Serial) return;
 
-    Serial.print("{");
+    Serial.println("📡 Envoi des données..."); // Message de confirmation d'envoi
+
+    Serial.print("{\"type\": \"sendData\", ");
     Serial.print("\"temperature\": "); Serial.print(temperature);
     Serial.print(", \"soilMoisture\": "); Serial.print(soilMoisture);
     Serial.print(", \"lightLevel\": "); Serial.print(lightLevel);
     Serial.println("}");
 }
+
