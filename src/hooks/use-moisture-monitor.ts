@@ -8,6 +8,7 @@ import { useNotificationStore } from "@/stores/useNotificationStore";
 export const useMoistureMonitor = (plant: Plant | null) => {
   const { toast } = useToast();
   const [lastNotificationSent, setLastNotificationSent] = useState<Date | null>(null);
+  const [lastMoistureLevel, setLastMoistureLevel] = useState<number | null>(null);
   const addNotification = useNotificationStore((state) => state.addNotification);
 
   const checkMoistureLevel = async (plant: Plant) => {
@@ -16,6 +17,11 @@ export const useMoistureMonitor = (plant: Plant | null) => {
     const requiredHumidity = humidityMatch ? parseInt(humidityMatch[1]) : null;
 
     if (!requiredHumidity) return;
+
+    // Only proceed if this is a real moisture change (not initial load)
+    if (lastMoistureLevel !== null && plant.moisture === lastMoistureLevel) {
+      return;
+    }
 
     const currentTime = new Date();
     const notificationCooldown = 3600000; // 1 hour in milliseconds
@@ -50,6 +56,9 @@ export const useMoistureMonitor = (plant: Plant | null) => {
         console.error('Error sending moisture alert:', error);
       }
     }
+
+    // Update the last known moisture level
+    setLastMoistureLevel(plant.moisture);
   };
 
   useEffect(() => {
