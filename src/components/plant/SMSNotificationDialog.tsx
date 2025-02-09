@@ -17,9 +17,15 @@ interface SMSNotificationDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   plantName: string;
+  onPhoneNumberSubmit: (phoneNumber: string) => void;
 }
 
-const SMSNotificationDialog = ({ isOpen, onOpenChange, plantName }: SMSNotificationDialogProps) => {
+const SMSNotificationDialog = ({ 
+  isOpen, 
+  onOpenChange, 
+  plantName,
+  onPhoneNumberSubmit 
+}: SMSNotificationDialogProps) => {
   const { toast } = useToast();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneError, setPhoneError] = useState("");
@@ -44,10 +50,11 @@ const SMSNotificationDialog = ({ isOpen, onOpenChange, plantName }: SMSNotificat
     try {
       const response = await sendSMS(
         cleanPhone,
-        `Your plant ${plantName} is now being monitored and you will receive notifications if it needs you!`
+        `Your plant ${plantName} is now being monitored and you will receive notifications if it needs watering!`
       );
 
       if (response.success) {
+        onPhoneNumberSubmit(cleanPhone);
         onOpenChange(false);
         toast({
           title: "Success",

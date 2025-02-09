@@ -1,9 +1,9 @@
-
 import Navigation from "@/components/Navigation";
 import { useToast } from "@/hooks/use-toast";
 import type { Plant } from "@/lib/api/plants";
 import { deletePlant, getPlantById, updatePlantImage, updatePlantCareInfo } from "@/lib/api/plants";
 import { identifyPlant } from "@/lib/api/plant-identification";
+import { sendSMS } from "@/services/smsService";
 import { ArrowLeft, Bell, ChevronDown, Loader2, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -39,6 +39,42 @@ const PlantDetail = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCareGuideOpen, setIsCareGuideOpen] = useState(false);
   const [isUpdatingCare, setIsUpdatingCare] = useState(false);
+  const [lastNotificationSent, setLastNotificationSent] = useState<Date | null>(null);
+
+  const checkMoistureLevel = async (plant: Plant) => {
+    const humidityText = plant.care_humidity || '';
+    const humidityMatch = humidityText.match(/(\d+)%/);
+    const requiredHumidity = humidityMatch ? parseInt(humidityMatch[1]) : null;
+
+    if (!requiredHumidity) return;
+
+    const currentTime = new Date();
+    const notificationCooldown = 3600000; // 1 hour in milliseconds
+
+    if (plant.moisture < requiredHumidity && 
+        (!lastNotificationSent || (currentTime.getTime() - lastNotificationSent.getTime() > notificationCooldown))) {
+      
+      try {
+        const phoneNumber = localStorage.getItem(`plant-${plant.id}-phone`);
+        if (!phoneNumber) return;
+
+        const response = await sendSMS(
+          phoneNumber,
+          `Your plant ${plant.name} needs watering! Current moisture level (${plant.moisture}%) is below the recommended level of ${requiredHumidity}%.`
+        );
+
+        if (response.success) {
+          setLastNotificationSent(currentTime);
+          toast({
+            title: "Notification Sent",
+            description: `SMS notification sent. Remaining quota: ${response.quotaRemaining}`,
+          });
+        }
+      } catch (error) {
+        console.error('Error sending moisture alert:', error);
+      }
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -46,6 +82,9 @@ const PlantDetail = () => {
         .then(data => {
           setPlant(data);
           setLoading(false);
+          if (data) {
+            checkMoistureLevel(data);
+          }
         })
         .catch(error => {
           console.error('Error fetching plant:', error);
@@ -58,6 +97,12 @@ const PlantDetail = () => {
         });
     }
   }, [id, toast]);
+
+  useEffect(() => {
+    if (plant) {
+      checkMoistureLevel(plant);
+    }
+  }, [plant?.moisture]);
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -106,7 +151,6 @@ const PlantDetail = () => {
     try {
       const response = await fetch(plant.image);
       const blob = await response.blob();
-      // Convert blob to File object
       const imageFile = new File([blob], 'plant-image.jpg', { type: blob.type });
       
       const identification = await identifyPlant(imageFile);
@@ -152,6 +196,12 @@ const PlantDetail = () => {
   );
 
   const needsCareUpdate = plant && !hasCareGuide;
+
+  const handlePhoneNumberSetup = (phoneNumber: string) => {
+    if (plant) {
+      localStorage.setItem(`plant-${plant.id}-phone`, phoneNumber);
+    }
+  };
 
   if (loading) {
     return (
@@ -327,6 +377,7 @@ const PlantDetail = () => {
           isOpen={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           plantName={plant.name}
+          onPhoneNumberSubmit={handlePhoneNumberSetup}
         />
       </main>
     </div>
