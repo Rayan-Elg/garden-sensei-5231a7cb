@@ -1,4 +1,6 @@
 
+import { supabase } from '../supabase';
+
 interface SendSMSResponse {
   success: boolean;
   message?: string;
@@ -14,17 +16,21 @@ export const sendSMS = async (phoneNumber: string, message: string): Promise<Sen
   try {
     const formattedPhone = formatPhoneNumber(phoneNumber);
 
-    const response = await fetch('https://textbelt.com/text', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    const { data, error } = await supabase.functions.invoke('send-sms', {
+      body: {
         phone: formattedPhone,
-        message: message,
-        key: '39bbdf476046aa16d8749550512216f1e2b393090aXdzG5eyrvQO3dTIT1YLH31l',
-      }),
+        message: message
+      }
     });
 
-    const data = await response.json();
+    if (error) {
+      console.error('Error calling send-sms function:', error);
+      return {
+        success: false,
+        error: 'Failed to send SMS'
+      };
+    }
+
     return {
       success: data.success,
       message: data.success ? 'SMS sent successfully' : undefined,
