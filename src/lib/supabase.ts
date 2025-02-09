@@ -28,6 +28,11 @@ export const supabase = supabaseUrl && supabaseKey ?
 
 // Add a helper function to check connection
 export const checkSupabaseConnection = async () => {
+  if (!supabase) {
+    console.error('Supabase client not initialized - missing credentials');
+    return false;
+  }
+
   try {
     const { error } = await supabase.auth.getSession();
     if (error) {
