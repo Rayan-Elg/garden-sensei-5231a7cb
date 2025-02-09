@@ -1,3 +1,4 @@
+
 import { checkSupabaseConnection, supabase } from '../supabase';
 
 export interface Plant {
@@ -6,10 +7,17 @@ export interface Plant {
   species: string;
   moisture: number;
   light: number;
-  last_watered: string;  // Changed from lastWatered to match database column
+  last_watered: string;
   image: string;
   description: string;
   user_id: string;
+  care_water?: string;
+  care_humidity?: string;
+  care_light?: string;
+  care_soil?: string;
+  care_temperature?: string;
+  care_fertilizer?: string;
+  care_warnings?: string;
 }
 
 export const getPlants = async (): Promise<Plant[]> => {

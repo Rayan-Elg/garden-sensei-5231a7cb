@@ -36,7 +36,14 @@ create table public.plants (
     image text,
     description text,
     created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-    user_id uuid references auth.users(id) on delete cascade not null
+    user_id uuid references auth.users(id) on delete cascade not null,
+    care_water text,
+    care_humidity text,
+    care_light text,
+    care_soil text,
+    care_temperature text,
+    care_fertilizer text,
+    care_warnings text
 );
 
 -- Enable RLS
