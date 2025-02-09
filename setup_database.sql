@@ -1,3 +1,4 @@
+
 create table public.plants (
     id uuid default gen_random_uuid() primary key,
     name text not null,
@@ -8,7 +9,15 @@ create table public.plants (
     last_watered timestamp with time zone,
     image text,
     description text,
-    created_at timestamp with time zone default timezone('utc'::text, now()) not null
+    user_id uuid references auth.users not null,
+    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    care_water text,
+    care_humidity text,
+    care_light text,
+    care_soil text,
+    care_temperature text,
+    care_fertilizer text,
+    care_warnings text
 );
 
 -- Create a new profiles table to store user phone numbers
@@ -41,23 +50,23 @@ create trigger on_auth_user_created
 alter table public.plants enable row level security;
 alter table public.profiles enable row level security;
 
--- Allow public access for now (you might want to restrict this in production)
-create policy "Allow public access" on public.plants
-    for all
-    to authenticated
-    using (true)
-    with check (true);
+-- Allow authenticated users to access only their own plants
+create policy "Users can manage their own plants"
+  on plants for all
+  to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
 
 -- Allow users to read/write their own profile
 create policy "Users can view own profile"
   on profiles for select
   to authenticated
-  using ( auth.uid() = id );
+  using (auth.uid() = id);
 
 create policy "Users can update own profile"
   on profiles for update
   to authenticated
-  using ( auth.uid() = id );
+  using (auth.uid() = id);
 
 -- Create storage bucket for plant images
 insert into storage.buckets (id, name, public)
@@ -68,10 +77,11 @@ on conflict (id) do nothing;
 create policy "Public Access"
 on storage.objects for all
 to public
-using ( bucket_id = 'plants' );
+using (bucket_id = 'plants');
 
 -- Allow uploads to the plants bucket
 create policy "Allow uploads"
 on storage.objects for insert
 to public
-with check ( bucket_id = 'plants' );
+with check (bucket_id = 'plants');
+

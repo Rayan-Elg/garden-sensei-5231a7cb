@@ -28,7 +28,8 @@ const PlantCard = ({
 }: PlantCardProps) => {
   const navigate = useNavigate();
   
-  console.log('PlantCard temperature:', temperature);
+  // Add debug logging for temperature
+  console.log(`PlantCard ${name} temperature:`, temperature);
   
   return (
     <Card 
@@ -69,7 +70,7 @@ const PlantCard = ({
           <Progress value={light} className="h-2 transition-all duration-500" />
         </div>
 
-        {temperature !== undefined && (
+        {typeof temperature === 'number' && (
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
@@ -78,7 +79,10 @@ const PlantCard = ({
               </div>
               <span className="transition-all duration-500">{temperature}°C</span>
             </div>
-            <Progress value={((temperature + 50) / 150) * 100} className="h-2 transition-all duration-500" />
+            <Progress 
+              value={((temperature + 50) / 150) * 100} 
+              className="h-2 transition-all duration-500" 
+            />
           </div>
         )}
       </div>
