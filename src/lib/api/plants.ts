@@ -41,6 +41,13 @@ export const getPlants = async (): Promise<Plant[]> => {
     .eq('user_id', user.id);
   
   if (error) throw error;
+  
+  // Add debug logging for temperature values
+  console.log('Plants data from database:', data?.map(plant => ({
+    name: plant.name,
+    temperature: plant.temperature
+  })));
+  
   return data || [];
 };
 
