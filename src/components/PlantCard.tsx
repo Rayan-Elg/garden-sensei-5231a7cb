@@ -75,7 +75,7 @@ const PlantCard = ({
             </div>
             <span className="transition-all duration-500">{temperature}°C</span>
           </div>
-          <Progress value={temperature * 2} className="h-2 transition-all duration-500" />
+          <Progress value={((temperature + 50) / 150) * 100} className="h-2 transition-all duration-500" />
         </div>
       </div>
       

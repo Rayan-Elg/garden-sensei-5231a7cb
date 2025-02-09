@@ -8,7 +8,7 @@ interface PlantMetricsProps {
   temperature: number;
 }
 
-const PlantMetrics = ({ moisture, light, temperature }: PlantMetricsProps) => {
+const PlantMetrics = ({ moisture, light, temperature = 22 }: PlantMetricsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Moisture Card */}
@@ -78,3 +78,4 @@ const PlantMetrics = ({ moisture, light, temperature }: PlantMetricsProps) => {
 };
 
 export default PlantMetrics;
+
