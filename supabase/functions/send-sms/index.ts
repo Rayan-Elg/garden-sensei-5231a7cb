@@ -3,17 +3,16 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const TEXTBELT_API_KEY = "39bbdf476046aa16d8749550512216f1e2b393090aXdzG5eyrvQO3dTIT1YLH31l"
 
-serve(async (req) => {
-  // Simple CORS headers
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Content-Type": "application/json"
-  };
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Content-Type': 'application/json',
+};
 
-  // Handle OPTIONS request
-  if (req.method === "OPTIONS") {
+serve(async (req) => {
+  // Handle OPTIONS request for CORS preflight
+  if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
       headers: corsHeaders
@@ -21,7 +20,7 @@ serve(async (req) => {
   }
 
   // Handle POST request
-  if (req.method === "POST") {
+  if (req.method === 'POST') {
     try {
       const { phoneNumber, message } = await req.json();
       
@@ -38,7 +37,8 @@ serve(async (req) => {
       const result = await response.json();
       
       return new Response(JSON.stringify(result), {
-        headers: corsHeaders
+        headers: corsHeaders,
+        status: 200
       });
     } catch (error) {
       return new Response(
