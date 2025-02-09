@@ -1,16 +1,16 @@
 
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
 import { Leaf, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { NotificationPanel } from "./NotificationPanel";
 
 const Navigation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Get current session with more frequent refetching
   const { data: session, refetch } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
@@ -21,25 +21,21 @@ const Navigation = () => {
       }
       return data.session;
     },
-    refetchInterval: 5000, // Refetch every 5 seconds to keep session fresh
+    refetchInterval: 5000,
   });
 
   const handleLogout = async () => {
     try {
-      // First clear any existing session locally
       await supabase.auth.signOut({ scope: 'local' });
       
-      // If we had a session, try to clear it globally
       if (session) {
         try {
           await supabase.auth.signOut();
         } catch (err) {
           console.error('Global signout failed:', err);
-          // Continue with local cleanup even if global fails
         }
       }
 
-      // Force session refetch and cleanup
       await refetch();
       
       toast({
@@ -50,7 +46,6 @@ const Navigation = () => {
       navigate('/login');
     } catch (err) {
       console.error('Unexpected error during logout:', err);
-      // Ensure we always clear local state and redirect
       await refetch();
       navigate('/login');
       toast({
@@ -69,6 +64,7 @@ const Navigation = () => {
         </Link>
         
         <div className="flex items-center gap-4">
+          <NotificationPanel />
           <Button variant="ghost" size="icon" onClick={handleLogout}>
             <LogOut className="w-5 h-5" />
           </Button>

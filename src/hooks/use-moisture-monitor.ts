@@ -3,10 +3,12 @@ import { useState, useEffect } from "react";
 import { Plant } from "@/lib/api/plants";
 import { sendSMS } from "@/services/smsService";
 import { useToast } from "@/hooks/use-toast";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 
 export const useMoistureMonitor = (plant: Plant | null) => {
   const { toast } = useToast();
   const [lastNotificationSent, setLastNotificationSent] = useState<Date | null>(null);
+  const addNotification = useNotificationStore((state) => state.addNotification);
 
   const checkMoistureLevel = async (plant: Plant) => {
     const humidityText = plant.care_humidity || '';
@@ -20,6 +22,13 @@ export const useMoistureMonitor = (plant: Plant | null) => {
 
     if (plant.moisture < requiredHumidity && 
         (!lastNotificationSent || (currentTime.getTime() - lastNotificationSent.getTime() > notificationCooldown))) {
+      
+      // Add to notification panel
+      addNotification({
+        message: `${plant.name} needs watering! Current moisture level (${plant.moisture}%) is below the recommended level of ${requiredHumidity}%.`,
+        plantId: plant.id,
+        plantName: plant.name,
+      });
       
       try {
         const phoneNumber = localStorage.getItem(`plant-${plant.id}-phone`);
