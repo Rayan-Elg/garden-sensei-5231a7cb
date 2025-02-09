@@ -1,8 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, Leaf, LogOut, Settings } from "lucide-react";
+import { Leaf, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Navigation = () => {
@@ -68,13 +69,6 @@ const Navigation = () => {
         </Link>
         
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Settings className="w-5 h-5" />
-          </Button>
           <Button variant="ghost" size="icon" onClick={handleLogout}>
             <LogOut className="w-5 h-5" />
           </Button>
