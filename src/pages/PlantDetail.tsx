@@ -37,7 +37,9 @@ const PlantDetail = () => {
   const [plant, setPlant] = useState<Plant | null>(null);
   const [loading, setLoading] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -102,14 +104,54 @@ const PlantDetail = () => {
     }
   };
 
+  const validatePhoneNumber = (phone: string) => {
+    const digitsOnly = phone.replace(/\D/g, '');
+    return digitsOnly.length === 10;
+  };
+
   const handlePhoneNumberSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // The actual SMS sending logic will be implemented by the user
-    setIsDialogOpen(false);
-    toast({
-      title: "Phone number submitted",
-      description: "You'll receive SMS notifications for this plant.",
-    });
+    setPhoneError("");
+    
+    const cleanPhone = phoneNumber.replace(/\D/g, '');
+    if (!validatePhoneNumber(cleanPhone)) {
+      setPhoneError("Please enter a valid 10-digit phone number");
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const response = await fetch('https://textbelt.com/text', {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: cleanPhone,
+          message: `Your plant ${plant?.name} is now being monitored and you will receive notifications if it needs you!`,
+          key: '39bbdf476046aa16d8749550512216f1e2b393090aXdzG5eyrvQO3dTIT1YLH31l',
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setIsDialogOpen(false);
+        toast({
+          title: "Success",
+          description: "SMS notifications have been set up successfully.",
+        });
+      } else {
+        throw new Error(data.error || 'Failed to send SMS');
+      }
+    } catch (error) {
+      console.error('Error sending SMS:', error);
+      toast({
+        title: "Error",
+        description: "Failed to set up SMS notifications. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSending(false);
+    }
   };
 
   if (loading) {
@@ -168,14 +210,23 @@ const PlantDetail = () => {
                   <div className="py-6">
                     <Input
                       type="tel"
-                      placeholder="Entrez votre numéro de téléphone"
+                      placeholder="Entrez votre numéro de téléphone (10 chiffres)"
                       value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      onChange={(e) => {
+                        setPhoneNumber(e.target.value);
+                        setPhoneError("");
+                      }}
                       required
+                      className={phoneError ? "border-red-500" : ""}
                     />
+                    {phoneError && (
+                      <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+                    )}
                   </div>
                   <DialogFooter>
-                    <Button type="submit">Activer les notifications</Button>
+                    <Button type="submit" disabled={isSending}>
+                      {isSending ? "Configuration en cours..." : "Activer les notifications"}
+                    </Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
