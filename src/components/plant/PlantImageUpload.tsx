@@ -139,6 +139,7 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
                 title: "Manual Plant Entry",
                 description: "You can now add your plant details manually.",
               });
+              setShowForm(true);
             }}
           >
             Skip photo and add plant manually
@@ -184,4 +185,3 @@ const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUpload
 };
 
 export default PlantImageUpload;
-

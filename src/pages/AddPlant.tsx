@@ -28,6 +28,7 @@ const AddPlant = () => {
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [careGuide, setCareGuide] = useState<CareGuide | null>(null);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<Omit<Plant, 'id'>>({
     name: '',
     species: '',
@@ -71,6 +72,7 @@ const AddPlant = () => {
       care_warnings: result.careGuide.warnings
     }));
     setCareGuide(result.careGuide);
+    setShowForm(true);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -83,18 +85,15 @@ const AddPlant = () => {
     setLoading(true);
     
     try {
-      // Check auth status first
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('You must be logged in to add a plant');
       }
 
-      // Validate required fields
       if (!formData.name.trim()) {
         throw new Error('Plant name is required');
       }
 
-      // Set the user_id before creating the plant
       const plantData = {
         ...formData,
         user_id: session.user.id
@@ -150,6 +149,7 @@ const AddPlant = () => {
               onInputChange={handleInputChange}
               onSubmit={handleSubmit}
               careGuide={careGuide || undefined}
+              showForm={showForm}
             />
           </div>
         </Card>
@@ -159,4 +159,3 @@ const AddPlant = () => {
 };
 
 export default AddPlant;
-

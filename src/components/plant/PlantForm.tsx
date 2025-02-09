@@ -27,20 +27,16 @@ interface PlantFormProps {
     fertilizer: string;
     warnings: string;
   };
+  showForm: boolean;
 }
 
-const PlantForm = ({ formData, imagePreview, loading, onInputChange, onSubmit, careGuide }: PlantFormProps) => {
+const PlantForm = ({ formData, imagePreview, loading, onInputChange, onSubmit, careGuide, showForm }: PlantFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  if (!showForm) return null;
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      {!imagePreview && (
-        <div className="flex items-center gap-2 text-sm text-yellow-600 bg-yellow-50 p-3 rounded-lg">
-          <AlertTriangle className="w-4 h-4" />
-          <p>Upload a photo to use AI plant identification</p>
-        </div>
-      )}
-
       {formData.species && (
         <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 p-3 rounded-lg">
           <Leaf className="w-4 h-4" />
@@ -195,4 +191,3 @@ const PlantForm = ({ formData, imagePreview, loading, onInputChange, onSubmit, c
 };
 
 export default PlantForm;
-
