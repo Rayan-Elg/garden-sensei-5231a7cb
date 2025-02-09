@@ -4,7 +4,6 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Create Supabase client only if credentials are provided
 export const supabase = supabaseUrl && supabaseKey ? 
   createClient(supabaseUrl, supabaseKey, {
     auth: {
@@ -17,7 +16,6 @@ export const supabase = supabaseUrl && supabaseKey ?
   }) : 
   null;
 
-// Add a helper function to check connection
 export const checkSupabaseConnection = async () => {
   if (!supabase) {
     console.error('Supabase client not initialized - missing credentials');
