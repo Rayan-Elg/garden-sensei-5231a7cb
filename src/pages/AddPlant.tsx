@@ -1,4 +1,3 @@
-
 import Navigation from "@/components/Navigation";
 import PlantForm from "@/components/plant/PlantForm";
 import PlantImageUpload from "@/components/plant/PlantImageUpload";
@@ -140,6 +139,7 @@ const AddPlant = () => {
             <PlantImageUpload 
               onImageChange={handleImageChange}
               onIdentifySuccess={handleIdentifySuccess}
+              setShowForm={setShowForm}
             />
             
             <PlantForm 

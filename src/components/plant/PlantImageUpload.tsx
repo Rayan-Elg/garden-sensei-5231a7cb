@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -9,9 +8,10 @@ import { useState } from "react";
 interface PlantImageUploadProps {
   onImageChange: (imageFile: File, imagePreview: string) => void;
   onIdentifySuccess: (data: { name: string; species: string; description: string; careGuide: any }) => void;
+  setShowForm: (show: boolean) => void;
 }
 
-const PlantImageUpload = ({ onImageChange, onIdentifySuccess }: PlantImageUploadProps) => {
+const PlantImageUpload = ({ onImageChange, onIdentifySuccess, setShowForm }: PlantImageUploadProps) => {
   const { toast } = useToast();
   const [identifying, setIdentifying] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
