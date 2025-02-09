@@ -26,8 +26,8 @@ export const NotificationPanel = () => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between border-b px-4 py-3">
+      <PopoverContent className="w-80 p-0 bg-white shadow-lg border z-50" align="end">
+        <div className="flex items-center justify-between border-b px-4 py-3 bg-white">
           <h4 className="font-semibold">Notifications</h4>
           {hasNotifications && (
             <Button
@@ -40,7 +40,7 @@ export const NotificationPanel = () => {
             </Button>
           )}
         </div>
-        <ScrollArea className="h-[300px]">
+        <ScrollArea className="h-[300px] bg-white">
           {notifications.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground">
               No new notifications
@@ -75,3 +75,4 @@ export const NotificationPanel = () => {
     </Popover>
   );
 };
+
