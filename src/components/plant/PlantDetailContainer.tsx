@@ -45,26 +45,26 @@ const PlantDetailContainer = ({
 
     setIsSending(true);
     try {
-      const message = `Started monitoring messages for ${plant.name}`;
+      const message = `Your plant will now notify you when it needs you!`;
       const result = await sendSMS(phoneNumber, message);
       
       if (result.success) {
         toast({
           title: "Success",
-          description: "Watering reminder sent successfully"
+          description: "Notification setup completed successfully"
         });
         setIsDialogOpen(false);
       } else {
         toast({
           title: "Error",
-          description: result.error || "Failed to send reminder",
+          description: result.error || "Failed to setup notifications",
           variant: "destructive"
         });
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to send reminder",
+        description: "Failed to setup notifications",
         variant: "destructive"
       });
     } finally {
@@ -93,11 +93,11 @@ const PlantDetailContainer = ({
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">Send Watering Reminder</Button>
+              <Button variant="outline">Enable Plant Notifications</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Send Watering Reminder</DialogTitle>
+                <DialogTitle>Setup Plant Notifications</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 pt-4">
                 <div className="space-y-2">
@@ -107,17 +107,20 @@ const PlantDetailContainer = ({
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="Enter phone number"
+                    placeholder="Enter phone number (e.g., 5145898299)"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                   />
+                  <p className="text-sm text-gray-500">
+                    Enter number without spaces, dashes, or country code
+                  </p>
                 </div>
                 <Button 
                   onClick={handleSendSMS} 
                   disabled={isSending}
                   className="w-full"
                 >
-                  {isSending ? "Sending..." : "Send Reminder"}
+                  {isSending ? "Setting up..." : "Enable Notifications"}
                 </Button>
               </div>
             </DialogContent>
