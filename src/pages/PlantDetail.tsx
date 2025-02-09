@@ -12,20 +12,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import type { Plant } from "@/lib/api/plants";
 import { deletePlant, getPlantById, updatePlantImage } from "@/lib/api/plants";
-import { ArrowLeft, Bell, Droplet, PencilIcon, Sprout, Sun, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Bell, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SMSNotificationDialog from "@/components/plant/SMSNotificationDialog";
+import PlantDetailImage from "@/components/plant/PlantDetailImage";
+import PlantInfo from "@/components/plant/PlantInfo";
+import PlantMetrics from "@/components/plant/PlantMetrics";
 
 const PlantDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [plant, setPlant] = useState<Plant | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -48,10 +49,6 @@ const PlantDetail = () => {
         });
     }
   }, [id, toast]);
-
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -165,65 +162,24 @@ const PlantDetail = () => {
         </div>
         
         <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden">
-          <div className="aspect-[16/9] relative group">
-            <img 
-              src={plant.image || '/placeholder.svg'} 
-              alt={plant.name}
-              className="w-full h-full object-cover transition-opacity group-hover:opacity-90"
-            />
-            <Button
-              variant="secondary"
-              size="icon"
-              className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={handleImageClick}
-            >
-              <PencilIcon className="h-4 w-4" />
-            </Button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-          </div>
+          <PlantDetailImage
+            image={plant.image}
+            name={plant.name}
+            onImageChange={handleImageChange}
+          />
           
           <div className="p-6 space-y-6">
-            <div>
-              <h1 className="text-3xl font-semibold mb-2">{plant.name}</h1>
-              <p className="text-gray-500 italic">{plant.species}</p>
-            </div>
+            <PlantInfo
+              name={plant.name}
+              species={plant.species}
+              description={plant.description}
+              lastWatered={plant.last_watered}
+            />
             
-            <p className="text-gray-700">{plant.description}</p>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <Droplet className="w-4 h-4 text-blue-500" />
-                    <span>Humidité</span>
-                  </div>
-                  <span>{plant.moisture}%</span>
-                </div>
-                <Progress value={plant.moisture} className="h-2" />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <Sun className="w-4 h-4 text-yellow-500" />
-                    <span>Lumière</span>
-                  </div>
-                  <span>{plant.light}%</span>
-                </div>
-                <Progress value={plant.light} className="h-2" />
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Sprout className="w-4 h-4" />
-              <span>Dernier arrosage: {new Date(plant.last_watered).toLocaleDateString()}</span>
-            </div>
+            <PlantMetrics
+              moisture={plant.moisture}
+              light={plant.light}
+            />
           </div>
         </div>
 
