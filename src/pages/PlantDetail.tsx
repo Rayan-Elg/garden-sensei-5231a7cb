@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import { useToast } from "@/hooks/use-toast";
 import type { Plant } from "@/lib/api/plants";
@@ -103,7 +104,12 @@ const PlantDetail = () => {
 
     setIsUpdatingCare(true);
     try {
-      const identification = await identifyPlant(await fetch(plant.image).then(r => r.blob()));
+      const response = await fetch(plant.image);
+      const blob = await response.blob();
+      // Convert blob to File object
+      const imageFile = new File([blob], 'plant-image.jpg', { type: blob.type });
+      
+      const identification = await identifyPlant(imageFile);
       if (!identification) {
         throw new Error("Could not identify plant");
       }
