@@ -30,7 +30,6 @@ void SystemManager::handleButtonPress() {
         return;
     }
     lastInterruptTime = interruptTime;
-    Serial.println("🔘 Bouton pressé !");
 
     if (digitalRead(buttonPin) == LOW) {
         buttonPressTime = millis();
