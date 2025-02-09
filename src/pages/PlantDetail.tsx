@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import {
   AlertDialog,
@@ -11,23 +12,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import type { Plant } from "@/lib/api/plants";
 import { deletePlant, getPlantById, updatePlantImage } from "@/lib/api/plants";
-import { ArrowLeft, Bell, Droplet, PencilIcon, PhoneCall, Sprout, Sun, Trash2 } from "lucide-react";
+import { ArrowLeft, Bell, Droplet, PencilIcon, Sprout, Sun, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import SMSNotificationDialog from "@/components/plant/SMSNotificationDialog";
 
 const PlantDetail = () => {
   const { id } = useParams();
@@ -36,10 +28,7 @@ const PlantDetail = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [plant, setPlant] = useState<Plant | null>(null);
   const [loading, setLoading] = useState(true);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [phoneError, setPhoneError] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -104,66 +93,6 @@ const PlantDetail = () => {
     }
   };
 
-  const validatePhoneNumber = (phone: string) => {
-    const digitsOnly = phone.replace(/\D/g, '');
-    return digitsOnly.length === 10;
-  };
-
-  const handlePhoneNumberSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPhoneError("");
-    
-    const cleanPhone = phoneNumber.replace(/\D/g, '');
-    if (!validatePhoneNumber(cleanPhone)) {
-      setPhoneError("Please enter a valid 10-digit phone number");
-      return;
-    }
-
-    setIsSending(true);
-    try {
-      console.log('Attempting to send SMS to:', cleanPhone); // Debug log
-      
-      const response = await fetch('https://textbelt.com/text', {
-        method: 'post',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify({
-          phone: cleanPhone,
-          message: `Your plant ${plant?.name} is now being monitored and you will receive notifications if it needs you!`,
-          key: '39bbdf476046aa16d8749550512216f1e2b393090aXdzG5eyrvQO3dTIT1YLH31l',
-        }),
-      });
-
-      const data = await response.json();
-      console.log('SMS API Response:', data); // For debugging
-      
-      if (data.success && data.textId) {
-        setIsDialogOpen(false);
-        toast({
-          title: "Success",
-          description: `SMS notifications have been set up successfully. Remaining quota: ${data.quotaRemaining}`,
-        });
-      } else {
-        throw new Error(data.error || 'Failed to send SMS');
-      }
-    } catch (error: any) {
-      console.error('Error sending SMS:', error);
-      const errorMessage = error.message || "Failed to set up SMS notifications. Please try again.";
-      console.error('Detailed error:', errorMessage); // Additional error logging
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
-    } finally {
-      setIsSending(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -202,45 +131,14 @@ const PlantDetail = () => {
           </Button>
 
           <div className="flex gap-2">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="secondary" className="gap-2">
-                  <Bell className="w-4 h-4" />
-                  Activer les notifications SMS
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <form onSubmit={handlePhoneNumberSubmit}>
-                  <DialogHeader>
-                    <DialogTitle>Configurer les notifications SMS</DialogTitle>
-                    <DialogDescription>
-                      Entrez votre numéro de téléphone pour recevoir des notifications concernant {plant.name}.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="py-6">
-                    <Input
-                      type="tel"
-                      placeholder="Entrez votre numéro de téléphone (10 chiffres)"
-                      value={phoneNumber}
-                      onChange={(e) => {
-                        setPhoneNumber(e.target.value);
-                        setPhoneError("");
-                      }}
-                      required
-                      className={phoneError ? "border-red-500" : ""}
-                    />
-                    {phoneError && (
-                      <p className="text-sm text-red-500 mt-1">{phoneError}</p>
-                    )}
-                  </div>
-                  <DialogFooter>
-                    <Button type="submit" disabled={isSending}>
-                      {isSending ? "Configuration en cours..." : "Activer les notifications"}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <Button 
+              variant="secondary" 
+              className="gap-2"
+              onClick={() => setIsDialogOpen(true)}
+            >
+              <Bell className="w-4 h-4" />
+              Activer les notifications SMS
+            </Button>
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -328,6 +226,12 @@ const PlantDetail = () => {
             </div>
           </div>
         </div>
+
+        <SMSNotificationDialog 
+          isOpen={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          plantName={plant.name}
+        />
       </main>
     </div>
   );
