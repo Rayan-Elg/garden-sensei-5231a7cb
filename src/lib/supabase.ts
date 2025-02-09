@@ -10,17 +10,9 @@ export const supabase = supabaseUrl && supabaseKey ?
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: false, // Disable URL detection since we're not using OAuth
-      flowType: 'pkce',  // More secure and faster auth flow
-      storage: window.localStorage,  // Explicitly use localStorage for better performance
-    },
-    global: {
-      headers: {
-        'x-client-info': 'garden-sensei'
-      }
-    },
-    db: {
-      schema: 'public'
+      detectSessionInUrl: false,
+      flowType: 'pkce',
+      storage: window.localStorage
     }
   }) : 
   null;
