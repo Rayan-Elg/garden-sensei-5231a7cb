@@ -2,6 +2,9 @@
 import { Plant } from "@/lib/api/plants";
 import PlantDetailImage from "./PlantDetailImage";
 import PlantMetrics from "./PlantMetrics";
+import { Button } from "@/components/ui/button";
+import { MessageSquare } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface PlantDetailContainerProps {
   plant: Plant;
@@ -22,22 +25,64 @@ const PlantDetailContainer = ({
   onUpdateCare,
   needsCareUpdate,
 }: PlantDetailContainerProps) => {
+  const { toast } = useToast();
+
+  const handleSendSMS = async () => {
+    try {
+      const response = await fetch('https://rvrhlbsqhgbtecjjdtik.supabase.co/functions/v1/send-sms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          plantId: plant.id,
+          plantName: plant.name,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send SMS');
+      }
+
+      toast({
+        title: "Success",
+        description: "SMS notification sent successfully!",
+      });
+    } catch (error) {
+      console.error('Error sending SMS:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send SMS notification",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Section */}
       <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-6">
-        <div className="flex items-center gap-4">
-          <div className="w-24 h-24 rounded-full overflow-hidden">
-            <img 
-              src={plant.image} 
-              alt={plant.name} 
-              className="w-full h-full object-cover"
-            />
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-24 rounded-full overflow-hidden">
+              <img 
+                src={plant.image} 
+                alt={plant.name} 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800">{plant.name}</h2>
+              <p className="text-sm text-gray-500 italic">{plant.species}</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800">{plant.name}</h2>
-            <p className="text-sm text-gray-500 italic">{plant.species}</p>
-          </div>
+          <Button
+            onClick={handleSendSMS}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Send Watering Reminder
+          </Button>
         </div>
       </div>
 
