@@ -1,7 +1,13 @@
 
 import { Plant } from "@/lib/api/plants";
+import { sendSMS } from "@/lib/api/sms";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 import PlantDetailImage from "./PlantDetailImage";
 import PlantMetrics from "./PlantMetrics";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface PlantDetailContainerProps {
   plant: Plant;
@@ -22,22 +28,100 @@ const PlantDetailContainer = ({
   onUpdateCare,
   needsCareUpdate,
 }: PlantDetailContainerProps) => {
+  const { toast } = useToast();
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+
+  const handleSendSMS = async () => {
+    if (!phoneNumber) {
+      toast({
+        title: "Error",
+        description: "Please enter a phone number",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const message = `Started monitoring messages for ${plant.name}`;
+      const result = await sendSMS(phoneNumber, message);
+      
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Watering reminder sent successfully"
+        });
+        setIsDialogOpen(false);
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to send reminder",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send reminder",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Section */}
       <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-6">
-        <div className="flex items-center gap-4">
-          <div className="w-24 h-24 rounded-full overflow-hidden">
-            <img 
-              src={plant.image} 
-              alt={plant.name} 
-              className="w-full h-full object-cover"
-            />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-24 rounded-full overflow-hidden">
+              <img 
+                src={plant.image} 
+                alt={plant.name} 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800">{plant.name}</h2>
+              <p className="text-sm text-gray-500 italic">{plant.species}</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800">{plant.name}</h2>
-            <p className="text-sm text-gray-500 italic">{plant.species}</p>
-          </div>
+          
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">Send Watering Reminder</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Send Watering Reminder</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                    Phone Number
+                  </label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="Enter phone number"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                  />
+                </div>
+                <Button 
+                  onClick={handleSendSMS} 
+                  disabled={isSending}
+                  className="w-full"
+                >
+                  {isSending ? "Sending..." : "Send Reminder"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
