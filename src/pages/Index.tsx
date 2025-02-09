@@ -23,10 +23,9 @@ const gardeningTips = [
 
 const Index = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const randomTip = gardeningTips[Math.floor(Math.random() * gardeningTips.length)];
   
-  const { data: plants = [], isLoading: plantsLoading, error: plantsError } = useQuery({
+  const { data: plants = [], isLoading: plantsLoading } = useQuery({
     queryKey: ['plants'],
     queryFn: getPlants,
     retry: false
@@ -44,7 +43,7 @@ const Index = () => {
 
   const { data: sensors = [], isLoading: sensorsLoading } = useQuery({
     queryKey: ['sensors'],
-    queryFn: getSensors
+    queryFn: getSensors,
   });
 
   return (
