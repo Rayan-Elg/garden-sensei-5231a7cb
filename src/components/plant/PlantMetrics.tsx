@@ -16,9 +16,9 @@ const PlantMetrics = ({ moisture, light }: PlantMetricsProps) => {
             <Droplet className="w-4 h-4 text-blue-500" />
             <span>Humidité</span>
           </div>
-          <span>{moisture}%</span>
+          <span className="transition-all duration-500">{moisture}%</span>
         </div>
-        <Progress value={moisture} className="h-2" />
+        <Progress value={moisture} className="h-2 transition-all duration-500" />
       </div>
       
       <div className="space-y-2">
@@ -27,12 +27,13 @@ const PlantMetrics = ({ moisture, light }: PlantMetricsProps) => {
             <Sun className="w-4 h-4 text-yellow-500" />
             <span>Lumière</span>
           </div>
-          <span>{light}%</span>
+          <span className="transition-all duration-500">{light}%</span>
         </div>
-        <Progress value={light} className="h-2" />
+        <Progress value={light} className="h-2 transition-all duration-500" />
       </div>
     </div>
   );
 };
 
 export default PlantMetrics;
+

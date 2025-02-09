@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatDistanceToNow } from "date-fns";
@@ -5,12 +6,12 @@ import { Droplet, Sprout, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface PlantCardProps {
-  id: string;  // Added id prop
+  id: string;
   name: string;
   species: string;
   moisture: number;
   light: number;
-  last_watered: string;  // Changed from lastWatered to last_watered
+  last_watered: string;
   image: string;
 }
 
@@ -20,7 +21,7 @@ const PlantCard = ({
   species,
   moisture,
   light,
-  last_watered,  // Changed from lastWatered
+  last_watered,
   image,
 }: PlantCardProps) => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const PlantCard = ({
   return (
     <Card 
       className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer animate-fade-in bg-white/80 backdrop-blur-sm group"
-      onClick={() => navigate(`/plants/${id}`)}  // Changed to use id instead of name
+      onClick={() => navigate(`/plants/${id}`)}
     >
       <div className="aspect-video relative mb-4 overflow-hidden rounded-lg">
         <img 
@@ -82,3 +83,4 @@ const PlantCard = ({
 };
 
 export default PlantCard;
+
