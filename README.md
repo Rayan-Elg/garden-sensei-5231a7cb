@@ -62,6 +62,76 @@ Our project directly contributes to:
 - **State Management**: TanStack Query
 - **Routing**: React Router
 
+## System Architecture
+
+### 🔧 Hardware Module - Smart Garden Sensei
+
+Our IoT solution integrates precision hardware components to monitor and optimize plant care:
+
+#### Components
+- Temperature & Humidity Sensor (DHT11)
+- Soil Moisture Sensors
+- Ambient Light Sensors
+- Status LEDs
+- Control Button
+- Arduino-based Controller
+
+#### Hardware Architecture
+```
+┌─────────────────┐      ┌──────────────────┐
+│  Environmental  │      │    Control &      │
+│    Sensors      │◄────►│    Processing    │
+└─────────────────┘      └──────────────────┘
+        ▲                         ▲
+        │                         │
+        ▼                         ▼
+┌─────────────────┐      ┌──────────────────┐
+│  User Interface │      │  Communication    │
+│    (LED/BTN)    │◄────►│     Module       │
+└─────────────────┘      └──────────────────┘
+```
+
+#### Key Controllers
+
+1. **ButtonController**
+   - Manages physical button interactions
+   - Implements debouncing
+   - Handles short/long press detection
+   - Controls system power state
+
+2. **LEDController**
+   - Visual status indication
+   - Green LED: Normal operation
+   - Red LED: Critical conditions
+   - Dynamic display based on sensor values
+
+3. **SensorManager**
+   - Temperature reading (DHT11)
+   - Soil moisture monitoring
+   - Ambient light measurement
+   - Data validation and formatting
+
+4. **SerialManager**
+   - JSON-formatted data transmission
+   - Value filtering
+   - Debug logging capabilities
+
+5. **SystemManager**
+   - Component coordination
+   - Sensor polling (30-second intervals)
+   - Data transmission (2-minute intervals)
+   - Threshold monitoring
+
+#### Technical Specifications
+- **Sampling Rate**: 30-second intervals
+- **Data Transmission**: 2-minute intervals
+- **Power Consumption**: Low-power design for sustainability
+- **Communication**: Serial interface with JSON formatting
+- **Error Handling**: Built-in data validation and error recovery
+
+### Software Architecture
+[Previous software architecture content remains the same...]
+
 ## Getting Started
 
 ### Prerequisites
@@ -122,6 +192,31 @@ bun dev
 ```
 
 Visit `http://localhost:5173` to see the app.
+
+### Hardware Setup
+
+1. **Components Required**
+   ```
+   - Arduino Uno/Nano
+   - DHT11 Temperature Sensor
+   - Soil Moisture Sensor
+   - Light Dependent Resistor (LDR)
+   - 2x LEDs (Green, Red)
+   - Push Button
+   - Resistors & Jumper Wires
+   ```
+
+2. **Assembly**
+   - Connect sensors following the provided schematic
+   - Upload the Arduino code from the hardware module
+   - Verify LED indicators are functioning
+   - Test button interface
+
+3. **Configuration**
+   - Set appropriate sensor thresholds
+   - Configure sampling intervals
+   - Calibrate moisture sensors
+   - Test communication with main application
 
 ### Key Features
 
@@ -192,6 +287,22 @@ Upload a photo of your plant and let our AI identify it and provide care recomme
 3. **Authentication Errors**
    - Clear browser cache and local storage
    - Ensure email confirmation is completed
+
+## Environmental Impact
+
+### Hardware Sustainability
+- Low-power components selection
+- Sleep modes for energy conservation
+- Modular design for easy repairs
+- Recyclable materials usage
+- Local manufacturing support
+
+### Resource Optimization
+- Precision watering based on real-time data
+- Smart light exposure management
+- Temperature-based care adjustments
+- Preventive maintenance notifications
+- Resource usage analytics
 
 ## License
 
