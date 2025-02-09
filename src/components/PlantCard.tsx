@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatDistanceToNow } from "date-fns";
-import { Droplet, Sprout, Sun } from "lucide-react";
+import { Droplet, Sprout, Sun, Thermometer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface PlantCardProps {
@@ -11,6 +11,7 @@ interface PlantCardProps {
   species: string;
   moisture: number;
   light: number;
+  temperature?: number;
   last_watered: string;
   image: string;
 }
@@ -21,6 +22,7 @@ const PlantCard = ({
   species,
   moisture,
   light,
+  temperature = 22,
   last_watered,
   image,
 }: PlantCardProps) => {
@@ -28,7 +30,7 @@ const PlantCard = ({
   
   return (
     <Card 
-      className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer animate-fade-in bg-white/80 backdrop-blur-sm group"
+      className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer animate-fade-in bg-white/80 backdrop-blur-sm group relative"
       onClick={() => navigate(`/plants/${id}`)}
     >
       <div className="aspect-video relative mb-4 overflow-hidden rounded-lg">
@@ -63,6 +65,17 @@ const PlantCard = ({
             <span className="transition-all duration-500">{light}%</span>
           </div>
           <Progress value={light} className="h-2 transition-all duration-500" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <Thermometer className="w-4 h-4 text-red-500" />
+              <span>Temperature</span>
+            </div>
+            <span className="transition-all duration-500">{temperature}°C</span>
+          </div>
+          <Progress value={temperature * 2} className="h-2 transition-all duration-500" />
         </div>
       </div>
       
