@@ -9,6 +9,7 @@ SmartGarden Manager addresses critical environmental challenges while promoting 
 ### Sustainability Pillars
 
 #### 🌍 Environmental Impact
+
 - Promotes native plant species preservation
 - Reduces water waste through intelligent monitoring
 - Supports biodiversity by helping users maintain healthy plants
@@ -16,6 +17,7 @@ SmartGarden Manager addresses critical environmental challenges while promoting 
 - Contributes to urban greening initiatives
 
 #### 💰 Economic Viability
+
 - Reduces plant replacement costs through better care
 - Minimizes water and fertilizer waste
 - Scalable SaaS business model
@@ -23,6 +25,7 @@ SmartGarden Manager addresses critical environmental challenges while promoting 
 - Potential integration with smart home systems
 
 #### 👥 Social Responsibility
+
 - Educates users about sustainable gardening
 - Creates community around plant care
 - Makes gardening accessible to beginners
@@ -32,6 +35,7 @@ SmartGarden Manager addresses critical environmental challenges while promoting 
 ### Category Alignment: "Sur la terre - Above ground"
 
 Our project directly contributes to:
+
 - **Protection des espèces en danger**: AI-powered plant identification helps protect and preserve endangered plant species
 - **Agriculture de précision**: Smart monitoring optimizes resource usage and plant health
 - **Sustainable Urban Development**: Promotes green spaces in urban environments
@@ -48,6 +52,7 @@ Our project directly contributes to:
 ## Technical Innovation
 
 ### Advanced Features
+
 - Machine Learning plant identification using Google's Gemini AI
 - Real-time environmental monitoring
 - Automated care scheduling system
@@ -55,6 +60,7 @@ Our project directly contributes to:
 - Progressive Web App capabilities
 
 ### Architecture
+
 - **Frontend**: React + TypeScript + Vite
 - **UI Components**: shadcn/ui
 - **Styling**: Tailwind CSS
@@ -69,6 +75,7 @@ Our project directly contributes to:
 Our IoT solution integrates precision hardware components to monitor and optimize plant care:
 
 #### Components
+
 - Temperature & Humidity Sensor (DHT11)
 - Soil Moisture Sensors
 - Ambient Light Sensors
@@ -77,6 +84,7 @@ Our IoT solution integrates precision hardware components to monitor and optimiz
 - Arduino-based Controller
 
 #### Hardware Architecture
+
 ```
 ┌─────────────────┐      ┌──────────────────┐
 │  Environmental  │      │    Control &      │
@@ -94,24 +102,28 @@ Our IoT solution integrates precision hardware components to monitor and optimiz
 #### Key Controllers
 
 1. **ButtonController**
+
    - Manages physical button interactions
    - Implements debouncing
    - Handles short/long press detection
    - Controls system power state
 
 2. **LEDController**
+
    - Visual status indication
    - Green LED: Normal operation
    - Red LED: Critical conditions
    - Dynamic display based on sensor values
 
 3. **SensorManager**
+
    - Temperature reading (DHT11)
    - Soil moisture monitoring
    - Ambient light measurement
    - Data validation and formatting
 
 4. **SerialManager**
+
    - JSON-formatted data transmission
    - Value filtering
    - Debug logging capabilities
@@ -123,6 +135,7 @@ Our IoT solution integrates precision hardware components to monitor and optimiz
    - Threshold monitoring
 
 #### Technical Specifications
+
 - **Sampling Rate**: 30-second intervals
 - **Data Transmission**: 2-minute intervals
 - **Power Consumption**: Low-power design for sustainability
@@ -130,6 +143,7 @@ Our IoT solution integrates precision hardware components to monitor and optimiz
 - **Error Handling**: Built-in data validation and error recovery
 
 ### Software Architecture
+
 [Previous software architecture content remains the same...]
 
 ## Getting Started
@@ -196,6 +210,7 @@ Visit `http://localhost:5173` to see the app.
 ### Hardware Setup
 
 1. **Components Required**
+
    ```
    - Arduino Uno/Nano
    - DHT11 Temperature Sensor
@@ -207,6 +222,7 @@ Visit `http://localhost:5173` to see the app.
    ```
 
 2. **Assembly**
+
    - Connect sensors following the provided schematic
    - Upload the Arduino code from the hardware module
    - Verify LED indicators are functioning
@@ -218,18 +234,32 @@ Visit `http://localhost:5173` to see the app.
    - Calibrate moisture sensors
    - Test communication with main application
 
+### Hardware Showcase
+
+Below are images of our Smart Garden Sensei hardware module:
+
+#### Complete Assembly
+
+![Complete hardware assembly](public/images/hardware/657B0325-584E-447F-884F-92651FC3A601.jpg)
+_The complete Smart Garden Sensei hardware module with all sensors connected._
+![](public/images/hardware/E0C285AE-B83F-4B28-988A-E7D37C07038B.jpg)
+![](public/images/hardware/FEFF55B6-036B-427E-A759-E56FC2B08ADA.jpg)
+
 ### Key Features
 
 #### Plant Identification
+
 Upload a photo of your plant and let our AI identify it and provide care recommendations.
 
 #### Plant Management
+
 - Add and track multiple plants
 - Monitor moisture, light, and temperature levels
 - Get personalized care recommendations
 - Set watering schedules
 
 #### Security
+
 - User authentication
 - Row Level Security (RLS) ensures users can only access their own data
 - Secure file storage for plant images
@@ -237,6 +267,7 @@ Upload a photo of your plant and let our AI identify it and provide care recomme
 ## Development Progress
 
 ### Current Implementation
+
 - ✅ User authentication and profile management
 - ✅ Plant identification system
 - ✅ Care recommendations engine
@@ -244,6 +275,7 @@ Upload a photo of your plant and let our AI identify it and provide care recomme
 - ✅ Notification system
 
 ### Planned Features
+
 - 🔄 Community plant sharing platform
 - 🔄 Endangered species database integration
 - 🔄 IoT sensor integration
@@ -253,12 +285,15 @@ Upload a photo of your plant and let our AI identify it and provide care recomme
 ## Hackathon Submission Details
 
 ### Project Category
+
 **Sur la terre - Above ground**
+
 - Focus on precision agriculture and species protection
 - Emphasis on sustainable urban gardening
 - Integration with environmental protection initiatives
 
 ### Technical Challenges Overcome
+
 - Implementation of advanced AI for plant identification
 - Real-time environmental data processing
 - Secure multi-user data architecture
@@ -266,6 +301,7 @@ Upload a photo of your plant and let our AI identify it and provide care recomme
 - Progressive Web App optimization
 
 ### Sustainability Goals
+
 - Reduce water consumption in urban gardening
 - Protect and preserve plant species
 - Optimize resource usage through smart monitoring
@@ -277,10 +313,12 @@ Upload a photo of your plant and let our AI identify it and provide care recomme
 ### Common Issues
 
 1. **Database Connection Issues**
+
    - Check your Supabase credentials in `.env`
    - Ensure the database is properly initialized with `setup_database.sql`
 
 2. **Image Upload Problems**
+
    - Verify storage bucket permissions
    - Check file size limits (max 5MB recommended)
 
@@ -291,6 +329,7 @@ Upload a photo of your plant and let our AI identify it and provide care recomme
 ## Environmental Impact
 
 ### Hardware Sustainability
+
 - Low-power components selection
 - Sleep modes for energy conservation
 - Modular design for easy repairs
@@ -298,6 +337,7 @@ Upload a photo of your plant and let our AI identify it and provide care recomme
 - Local manufacturing support
 
 ### Resource Optimization
+
 - Precision watering based on real-time data
 - Smart light exposure management
 - Temperature-based care adjustments
