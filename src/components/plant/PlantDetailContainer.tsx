@@ -85,7 +85,7 @@ const PlantDetailContainer = ({
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="Enter phone number (e.g., 5145898299)"
+                    placeholder="Enter phone number (e.g., 1234567890)"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                   />

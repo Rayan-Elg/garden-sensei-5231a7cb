@@ -6,8 +6,12 @@ console.log('VITE_SUPABASE_URL present:', !!import.meta.env.VITE_SUPABASE_URL);
 console.log('VITE_SUPABASE_ANON_KEY present:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
 
 // Ensure the environment variables are loaded
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://rvrhlbsqhgbtecjjdtik.supabase.co';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2cmhsYnNxaGdidGVjampkdGlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkwNDE2NDgsImV4cCI6MjA1NDYxNzY0OH0.sit78M1xKFlgURqiOqLkl_5ieXphRog6Vqx0nTpAS90';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.');
+}
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
